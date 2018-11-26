@@ -165,6 +165,8 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="Drawer.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GLError.h" />
     <ClInclude Include="Shader.h" />
