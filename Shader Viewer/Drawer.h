@@ -1,14 +1,28 @@
 #pragma once
 #include "Shader.h"
 #include "Geometry.h"
-template<typename T>
+
 class Drawer {
+private:
+	const GLTarget* target;
+	const GLProgram* prog;
+public:
+	Drawer();
+	Drawer(const GLTarget* target);
+	Drawer(const GLProgram* prog);
+	Drawer(const GLTarget* target, const GLProgram* prog);
+	virtual void setTarget(const GLTarget* target);
+	virtual void setProgram(const GLProgram* prog);
+	virtual void draw(const Geometry& geom) const = 0;
 
 };
-void draw(const GLProgram&);    // draw geometry using the specified shader
+
+
 
 #define FIELD_OFFSET(StructType, field) &(((StructType *)0)->field)
-									  // draw geometry using the specified shader
+
+
+// draw geometry using the specified shader
 void draw(const GLProgram& prog) {
 	const GLuint h_aPosition = prog.attr.at("aPosition");
 	const GLuint h_aNormal = prog.attr.at("aNormal");
