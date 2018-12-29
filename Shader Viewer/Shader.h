@@ -1,60 +1,71 @@
 #pragma once
-#include <GL\glew.h>
-#include <stdexcept>
-#include <unordered_map>
-#include <string>
-#include <sstream>
 #include <fstream>
-#include <iostream>
+#include <GL\glew.h>
+#include <glm/common.hpp>
 
-typedef std::unordered_map < std::string, GLuint > handle_map;
+#include "Geometry.h"
+#include "VertexLayout.h"
+#include "NonCopyable.h"
 
-class Shader {
+class GLShader : public NonCopyable {
 private:
-	const GLuint handle; // GLSL program handle
+	GLuint handle; // Shader handle
+	GLShader(GLenum shaderType);
 
 public:
-	// Create shader object of type shaderType
-	Shader(GLenum shaderType);
-	Shader(GLenum shaderType, const char* source);
-	Shader(GLenum shaderType, const std::vector<char>& source);
-	Shader(GLenum shaderType, std::ifstream& source);
-
-	// Store GLSL source code in shader object and compile it
 	void compile(const char* source);
 	void compile(std::ifstream& source);
+	operator GLuint() const; // cast to GLuint
+	~GLShader();
 
-	~Shader();
-
-	operator GLuint() const;
+	// shader factory
+	static GLShader& VertexShader();
+	static GLShader& FragmentShader();
 };
 
-class GLProgram {
+// base program class
+class GLProgram : public NonCopyable {
 private:
-	const GLuint handle;
+	GLuint handle;
+	GLuint uModelViewMatrix, uProjectionMatrix;
+
+protected:
+	GLuint getUniformLocation(const char* unif);
+	void setUniform(GLuint unif, glm::mat4 m);
 
 public:
-	handle_map attr;   // Attribute handles
-	handle_map unif;   // Uniform handles
+	GLProgram();
+	virtual void link(const GLShader& vshader, const GLShader& fshader);
+	void setModelView(glm::mat4 m);
+	void setProjection(glm::mat4 m);
+	operator GLuint() const; // cast to GLuint
+	virtual ~GLProgram();
 
-	GLProgram(Shader vs, Shader fs);
+	// vertex layout factory
+	virtual VertexLayout& createLayout() const = 0;
 
-	// Attach shaders to program and link
-	void link(const Shader& vs, const Shader& fs);
-
-	~GLProgram();
-
-	operator GLuint();
 };
 
 
-class GLTarget {
+
+class PhongShader : public GLProgram {
 private:
-	GLuint out; //
-public:
+	// Albedo | Ambient Light | Light Direction
+	GLuint uAlbedo, uAmbient, uLight;
 
+public:
+	PhongShader();
+	void setAlbedo(const glm::vec3& albedo);
+	void setAmbient(const glm::vec3& ambient);
+	void setLight(const glm::vec3& light);
 };
-#define GLINPUT(prog, list) { GLProgram* _PROG = &(prog); list; } void _DUMMY_SHADER_H()
-#define ATTR(name) _PROG->attr[#name] = glGetAttribLocation (*_PROG, #name);
-#define UNIF(name) _PROG->unif[#name] = glGetUniformLocation(*_PROG, #name);
-#define GLSL(source) #source
+
+
+class PickShader : public GLProgram {
+private:
+	GLuint uTessFact;
+
+public:
+	PickShader();
+	void setTessFact(unsigned int n);
+};

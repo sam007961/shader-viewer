@@ -6,6 +6,7 @@
 #include <memory>
 #include "Geometry.h"
 #include "Shader.h"
+#include "Renderer.h"
 
 
 std::shared_ptr<Shader> basicVS;
@@ -14,6 +15,11 @@ std::shared_ptr<GLProgram> basicShader;
 
 
 static void initShaders() {
+	GLShader* fshader = GLShader::FragmentShader();
+	Renderer renderer;
+	PhongShader shader;
+	renderer.setProgram(&shader);
+
 	std::ifstream fVShader("Shaders/basic.vshader");
 	if (!fVShader) {
 		std::runtime_error("Could not open vertex shader");

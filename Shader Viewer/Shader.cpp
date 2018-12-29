@@ -1,27 +1,20 @@
 #include "Shader.h"
+#include <vector>
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 
-// Create shader object of type shaderType
-Shader::Shader(GLenum shaderType) : handle(glCreateShader(shaderType)) {
-	if (!handle) {
-		throw std::runtime_error("Failed to create shader object.");
-	}
+// GLSHADER ///////////////////////////////////////////////////////////////////////////////////
+GLShader::GLShader(GLenum shaderType) : handle(glCreateShader(shaderType)) {};
+
+GLShader::operator GLuint() const {
+	return handle;
 }
 
-Shader::Shader(GLenum shaderType, const char* source) : Shader(shaderType) {
-	compile(source);
+GLShader::~GLShader() {
+	glDeleteShader(handle);
 }
 
-Shader::Shader(GLenum shaderType, const std::vector<char>& source) : Shader(shaderType) {
-	compile(&source[0]);
-}
-
-Shader::Shader(GLenum shaderType, std::ifstream& source) : Shader(shaderType) {
-	compile(source);
-}
-
-// Store GLSL source code in shader object and compile it
-void Shader::compile(const char* source) {
-
+void GLShader::compile(const char* source) {
 	GLint compiled = 0;  // Compiled flag
 	const char *ptrs[] = { source };
 	const GLint lens[] = { std::strlen(source) };
@@ -38,52 +31,102 @@ void Shader::compile(const char* source) {
 	}
 }
 
-void Shader::compile(std::ifstream& source) {
-	std::vector<char> temp;
+void GLShader::compile(std::ifstream& source) {
+	std::vector<char> text;
 	source.seekg(0, std::ios_base::end);
 	std::streampos fileSize = source.tellg();
-	temp.resize(fileSize);
+	text.resize(fileSize);
 
 	source.seekg(0, std::ios_base::beg);
-	source.read(&temp[0], fileSize);
-
-	compile(&temp[0]);
+	source.read(&text[0], fileSize);
+	compile(&text[0]);
 }
 
-Shader::~Shader() {
-	glDeleteShader(handle);
-}
+GLShader& GLShader::VertexShader() { return GLShader(GL_VERTEX_SHADER); }
+GLShader& GLShader::FragmentShader() { return GLShader(GL_FRAGMENT_SHADER); }
 
-Shader::operator GLuint() const {
-	return handle;
-}
+// GLPROGRAM //////////////////////////////////////////////////////////////////////////////////
+GLProgram::GLProgram() : handle(glCreateProgram()) {}
 
-
-
-GLProgram::GLProgram(Shader vs, Shader fs) : handle(glCreateProgram()) {
-	if (handle == 0)
-		throw std::runtime_error("glCreateProgram fails");
-	link(vs, fs);
-	glBindFragDataLocation(handle, 0, "fragColor");
-}
-
-// Attach shaders to program and link
-void GLProgram::link(const Shader& vs, const Shader& fs) {
+void GLProgram::link(const GLShader& vshader, const GLShader& fshader) {
 	GLint linked = 0; // Linked flag
-	glAttachShader(handle, vs);
-	glAttachShader(handle, fs);
+	glAttachShader(handle, vshader);
+	glAttachShader(handle, fshader);
 	glLinkProgram(handle);
-	glDetachShader(handle, vs);
-	glDetachShader(handle, fs);
+	glDetachShader(handle, vshader);
+	glDetachShader(handle, fshader);
 	glGetProgramiv(handle, GL_LINK_STATUS, &linked);
 	if (!linked)
 		throw std::runtime_error("Failed to link shaders.");
+
+	// get camera uniforms
+	uModelViewMatrix = getUniformLocation("uModelViewMatrix");
+	uProjectionMatrix = getUniformLocation("uProjectionMatrix");
 }
 
-GLProgram::~GLProgram() {
-	glDeleteProgram(handle);
+GLuint GLProgram::getUniformLocation(const char* unif) {
+	return glGetUniformLocation(handle, unif);
 }
 
-GLProgram::operator GLuint() {
-	return handle;
+void GLProgram::setUniform(GLuint unif, glm::mat4 m) {
+	glUseProgram(handle);
+	glUniformMatrix4fv(unif,
+		1, GL_FALSE, glm::value_ptr(m[0]));
+	glUseProgram(0);
+}
+
+
+void GLProgram::setModelView(glm::mat4 m) {
+	setUniform(uModelViewMatrix, m);
+}
+
+void GLProgram::setProjection(glm::mat4 m) {
+	setUniform(uProjectionMatrix, m);
+}
+
+GLProgram::operator GLuint() const { return handle; }
+
+GLProgram::~GLProgram() { glDeleteProgram(handle); }
+
+// SHADER PROGRAMS ////////////////////////////////////////////////////////////////////////////
+PhongShader::PhongShader() : GLProgram() {
+	// get uniforms
+	uAlbedo = glGetUniformLocation(*this, "uAlbedo");
+	uAmbient = glGetUniformLocation(*this, "uAmbient");
+	uLight = glGetUniformLocation(*this, "uLight");
+}
+
+void PhongShader::setAlbedo(const glm::vec3& albedo) {
+	assert(uAlbedo >= 0);
+
+	glUseProgram(*this);
+	glUniform3f(uAlbedo, albedo[0], albedo[1], albedo[2]);
+	glUseProgram(0);
+}
+void PhongShader::setAmbient(const glm::vec3& ambient) {
+	assert(uAmbient >= 0);
+
+	glUseProgram(*this);
+	glUniform3f(uAmbient, ambient[0], ambient[1], ambient[2]);
+	glUseProgram(0);
+}
+void PhongShader::setLight(const glm::vec3& light) {
+	assert(uLight >= 0);
+
+	glUseProgram(*this);
+	glUniform3f(uLight, light[0], light[1], light[2]);
+	glUseProgram(0);
+}
+
+
+PickShader::PickShader() : GLProgram() {
+	uTessFact = glGetUniformLocation(*this, "uTessFact");
+}
+
+
+void PickShader::setTessFact(unsigned int n) {
+	assert(uTessFact >= 0);
+	glUseProgram(*this);
+	glUniform1i(uTessFact, n);
+	glUseProgram(0);
 }

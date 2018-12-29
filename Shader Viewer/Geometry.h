@@ -4,7 +4,7 @@
 #include "Shader.h"
 #include "Constants.h"
 
-// Vertex structure
+// Generic Vertex structure
 struct Vertex {
 	glm::vec3 pos;      // position
 	glm::vec3 normal;   // normal
