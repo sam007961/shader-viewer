@@ -7,9 +7,11 @@ private:
 	GLBuffer<unsigned int> ibo;
 
 public:
-	void loadIndices(std::vector<unsigned int> ib) { // load indices
-		// TODO
+	Geometry() : LayoutType() { 
+		glBindVertexArray(*this); 
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); 
+		glBindVertexArray(0);
 	}
-	unsigned int elementCount() const { return ibo.size; } // get number of elements
-	void bind() { glBindVertexArray(*this); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); }
+	void loadIndices(std::vector<unsigned int> ib) { ibo.bufferData(ib); }
+	size_t elementCount() const { return ibo.size() / sizeof(unsigned int); } // get number of elements
 };

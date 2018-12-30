@@ -7,41 +7,61 @@
 #include "Geometry.h"
 #include "Shader.h"
 #include "Renderer.h"
+#include <string>
 
+Renderer g_renderer;
+Geometry<InterleavedLayout<VertexPN> >* g_target;
+PhongShader* g_phong;
 
-std::shared_ptr<Shader> basicVS;
-std::shared_ptr<Shader> basicFS;
-std::shared_ptr<GLProgram> basicShader;
+void checkGlErrors() {
+	const GLenum errCode = glGetError();
 
+	if (errCode != GL_NO_ERROR) {
+		std::string error("GL Error: ");
+		error += reinterpret_cast<const char*>(gluErrorString(errCode));
+		std::cerr << error << std::endl;
+		throw std::runtime_error(error);
+	}
+}
 
 static void initShaders() {
-	GLShader* fshader = GLShader::FragmentShader();
-	Renderer renderer;
-	PhongShader shader;
-	renderer.setProgram(&shader);
+	g_phong = new PhongShader();
+	g_target = new Geometry<InterleavedLayout<VertexPN> >();
+	g_renderer.setProgram(g_phong);
 
-	std::ifstream fVShader("Shaders/basic.vshader");
-	if (!fVShader) {
-		std::runtime_error("Could not open vertex shader");
-	}
-	basicVS.reset(new Shader(GL_VERTEX_SHADER, fVShader));
-	std::ifstream fFShader("Shaders/solid.fshader");
-	basicFS.reset(new Shader(GL_FRAGMENT_SHADER, fFShader));
-	basicShader.reset(new GLProgram(*basicVS, *basicFS));
+	std::vector<VertexPN> vertices;
+	VertexPN vert;
+	vert.position = glm::vec3(-1, 1, 0);
+	vert.normal = glm::vec3(0, 0, 1);
+	vertices.push_back(vert);
 
-	GLINPUT(*basicShader,
-		ATTR(aPosition)
-		ATTR(aNormal)
-		UNIF(uColor)
-	);
+	vert.position = glm::vec3(-1, -1, 0);
+	vert.normal = glm::vec3(0, 0, 1);
+	vertices.push_back(vert);
+
+	vert.position = glm::vec3(1, 1, 0);
+	vert.normal = glm::vec3(0, 0, 1);
+	vertices.push_back(vert);
+
+	vert.position = glm::vec3(1, -1, 0);
+	vert.normal = glm::vec3(0, 0, 1);
+	vertices.push_back(vert);
+
+	g_target->loadData(vertices);
+
+	std::vector<unsigned int> indices = { 0, 1, 2, 2, 1, 3 };
+	g_target->loadIndices(indices);
+	g_phong->setModelView(glm::mat4(1));
+	g_phong->setProjection(glm::mat4(1));
+	g_phong->setAlbedo({ 0.5, 0.7, 0.0 });
+	g_phong->setAmbient({ 0, 0, 0 });
+	g_phong->setLight({ -1, -1, -1 });
+
+	checkGlErrors();
 }
 
 static void draw() {
-	static const Plane plane(2.0f);
-	glUseProgram(*basicShader);
-	
-	glUniform3f(basicShader->unif["uColor"], 1.0f, 0.0f, 0.0f);
-	plane.draw(*basicShader);
+	g_renderer.draw(g_target);
 }
 
 static void display() {
@@ -58,19 +78,20 @@ void glutTimer(int value)
 }
 
 int main(int argc, char * argv[]) {
-	/*VertexPN vbx[VBLEN_CUBE];
-	unsigned short idx[IBLEN_CUBE];*/
-	//makeCube(1, vbx, idx);
-
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH); //  RGBA pixel channels and double buffering
 	glutInitWindowSize(512, 512);                              // create a window
-	glutCreateWindow("White Noise");                           // title the window
+	glutCreateWindow("Shader Viewer");                           // title the window
 	glutDisplayFunc(display);
 	glutTimerFunc(10, glutTimer, 1);
-	glewInit();
 
-	glClearColor(.2, .2, .2, 1.);
+	GLenum glewError = glewInit();
+	if (glewError != GLEW_OK)
+	{
+		throw std::runtime_error("failed to load extentions.");
+	}
+
+	glClearColor(0, 0, 0, 1.);
 	glClearDepth(0.);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);

@@ -22,6 +22,12 @@
     <None Include="Shaders\solid.fshader">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\phong.fshader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\pick.fshader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\basic.vshader">

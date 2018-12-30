@@ -1,19 +1,27 @@
 #pragma once
 #include <glm/gtc/matrix_transform.hpp>
 #include "Shader.h"
-
+#include "Geometry.h"
 
 class Renderer {
 private:
 	GLProgram* program;
-	VertexLayout* layout;
 	unsigned int n_elements;
 
 public:
 	Renderer();
 
 	void setProgram(GLProgram* program); // set program
-	void setVertexLayout(VertexLayout* layout);
-	void setElementCount(unsigned int n_elements);
-	void draw();
+
+	template<class GeometryType>
+	void draw(GeometryType* target) { // draw geometry
+		assert(program != nullptr);
+		assert((*program) > 0);
+
+		glUseProgram(*program);
+		glBindVertexArray(*target);
+		glDrawElements(GL_TRIANGLES, target->elementCount(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glUseProgram(0);
+	}
 };

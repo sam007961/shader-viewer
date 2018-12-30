@@ -18,8 +18,8 @@ public:
 	~GLShader();
 
 	// shader factory
-	static GLShader& VertexShader();
-	static GLShader& FragmentShader();
+	static GLShader* VertexShader();
+	static GLShader* FragmentShader();
 };
 
 // base program class
@@ -29,6 +29,7 @@ private:
 
 protected:
 	// helpers for constructing shader
+	void link(const GLShader& vshader, const GLShader& fshader);
 	GLuint getUniformLocation(const char* unif);
 
 	// helpers for setting uniforms
@@ -36,7 +37,6 @@ protected:
 
 public:
 	GLProgram();
-	virtual void link(const GLShader& vshader, const GLShader& fshader);
 	operator GLuint() const; // cast to GLuint
 	virtual ~GLProgram();
 };

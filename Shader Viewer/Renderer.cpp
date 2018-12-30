@@ -1,7 +1,7 @@
 #include "Renderer.h"
 #include <glm/gtc/type_ptr.hpp>
 
-Renderer::Renderer() : layout(nullptr), program(nullptr), n_elements(0) {}
+Renderer::Renderer() : program(nullptr) {}
 
 void Renderer::setProgram(GLProgram* program) {
 	assert(program != nullptr);
@@ -9,20 +9,3 @@ void Renderer::setProgram(GLProgram* program) {
 
 	this->program = program;
 }
-
-void Renderer::setVertexLayout(VertexLayout* layout) {
-	this->layout = layout;
-}
-
-void Renderer::draw() {
-	assert(program != nullptr);
-	assert((*program) > 0);
-
-	glUseProgram(*program);
-	glBindVertexArray(*layout);
-
-	glDrawElements(GL_TRIANGLES, layout->getNumElem() , GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	glUseProgram(0);
-}
-

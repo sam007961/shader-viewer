@@ -6,6 +6,7 @@
 
 // Vertex Types
 // Generic Vertex structure
+// Contains all possible vertex data
 struct Vertex {
 	glm::vec3 position; // position
 	glm::vec3 normal;   // normal
@@ -20,7 +21,7 @@ struct Vertex {
 /* Vertex subtypes
 VertexX {
 	...
-	static void enableAttributes(unsigned int i = 0) // setup attribute pointers
+	static void enableAttributes(unsigned int loc = 0) // setup attribute pointers starting at loc
 	VertexX(Vertex v) // must be constructable from generic vertex
 }
 */
@@ -28,7 +29,8 @@ VertexX {
 struct VertexP {
 	glm::vec3 position;
 
-	static void enableAttributes(unsigned int i = 0);
+	static void enableAttributes(unsigned int loc = 0);
+	VertexP() {}
 	VertexP(Vertex v);
 };
 
@@ -36,7 +38,8 @@ struct VertexPN {
 	glm::vec3 position;
 	glm::vec3 normal;
 
-	static void enableAttributes(unsigned int i = 0);
+	static void enableAttributes(unsigned int loc = 0);
+	VertexPN() {}
 	VertexPN(Vertex v);
 };
 
@@ -48,16 +51,16 @@ private:
 	size_t _size;
 
 public:
-	GLBuffer() : handle(glGenBuffers(1, &handle)) {};
-	void bufferData(std::vector<VertexT> data) { // load data into buffer
-		_size = data.size() * sizeof(VertexT);
+	GLBuffer() { glGenBuffers(1, &handle); _size = 0; }
+	void bufferData(std::vector<DataType> data) { // load data into buffer
+		_size = data.size() * sizeof(DataType);
 		glBindBuffer(GL_ARRAY_BUFFER, handle);
 		glBufferData(GL_ARRAY_BUFFER, _size, &data[0], GL_STATIC_DRAW);
 	}
 	~GLBuffer() { glDeleteBuffers(1, &handle); }
 
-	size_t size() { return _size; }
-	operator GLuint() const { return handle }; // cast to GLuint
+	size_t size() const { return _size; }
+	operator GLuint() const { return handle; } // cast to GLuint
 };
 
 // Vertex Buffer Class
@@ -65,9 +68,9 @@ template<typename VertexType>
 class VertexBuffer : public GLBuffer<VertexType> {
 public:
 	typedef VertexType Vertex;
-	void enableAttributes(unsigned int i = 0) { // specify location and format
-		glBindBuffer(GL_ARRAY_BUFFER, handle);
-		VertexType::enableAttributes(i); 
+	void enableAttributes(unsigned int loc = 0) { // specify location and format
+		glBindBuffer(GL_ARRAY_BUFFER, *this);
+		VertexType::enableAttributes(loc); 
 	}
 };
 
@@ -76,35 +79,39 @@ class VertexLayout : public NonCopyable {
 private:
 	GLuint handle; // vertex array object handle
 
-protected:
-	VertexLayout();
-
 public:
-	virtual void loadData(std::vector<Vertex> vb) = 0; // load data from array of Vertex
-	operator GLuint() const; // cast to GLuint
+	VertexLayout();
 	~VertexLayout();
+	operator GLuint() const; // cast to GLuint
 };
 
 // InterleavedLayout
 // positions and other attributes all interleaved in one buffer
-template<typename VertexT>
+template<typename VertexType>
 class InterleavedLayout : public VertexLayout {
 private:
-	VertexBuffer<VertexT> vbo;
+	VertexBuffer<VertexType> vbo;
 
 public:
-	virtual void loadData(std::vector<Vertex> vb);
+	InterleavedLayout() : VertexLayout() { 
+		glBindVertexArray(*this); 
+		vbo.enableAttributes(); 
+		glBindVertexArray(0);
+	}
+	void loadData(std::vector<VertexType> vb) { vbo.bufferData(vb); }
 };
 
 // VXLayout
 // one buffer of VertexP
 // another buffer of interleaved attributes X 
+// TODO
 template<typename X>
 class VXLayout : public VertexLayout {
 	VertexBuffer<VertexP> pos;
 	VertexBuffer<X> attr;
 
 public:
-	virtual void loadData(std::vector<Vertex> vb);
+	VXLayout() { /*TODO*/ }
+	void loadData(std::vector<Vertex> vb) { /*TODO*/ }
 };
 

@@ -42,8 +42,8 @@ void GLShader::compile(std::ifstream& source) {
 	compile(&text[0]);
 }
 
-GLShader& GLShader::VertexShader() { return GLShader(GL_VERTEX_SHADER); }
-GLShader& GLShader::FragmentShader() { return GLShader(GL_FRAGMENT_SHADER); }
+GLShader* GLShader::VertexShader() { return  new GLShader(GL_VERTEX_SHADER); }
+GLShader* GLShader::FragmentShader() { return new GLShader(GL_FRAGMENT_SHADER); }
 
 // GLPROGRAM //////////////////////////////////////////////////////////////////////////////////
 GLProgram::GLProgram() : handle(glCreateProgram()) {}
@@ -58,10 +58,6 @@ void GLProgram::link(const GLShader& vshader, const GLShader& fshader) {
 	glGetProgramiv(handle, GL_LINK_STATUS, &linked);
 	if (!linked)
 		throw std::runtime_error("Failed to link shaders.");
-
-	// get camera uniforms
-	uModelViewMatrix = getUniformLocation("uModelViewMatrix");
-	uProjectionMatrix = getUniformLocation("uProjectionMatrix");
 }
 
 GLuint GLProgram::getUniformLocation(const char* unif) {
@@ -75,58 +71,51 @@ void GLProgram::setUniform(GLuint unif, glm::mat4 m) {
 	glUseProgram(0);
 }
 
-
-void GLProgram::setModelView(glm::mat4 m) {
-	setUniform(uModelViewMatrix, m);
-}
-
-void GLProgram::setProjection(glm::mat4 m) {
-	setUniform(uProjectionMatrix, m);
-}
-
 GLProgram::operator GLuint() const { return handle; }
 
 GLProgram::~GLProgram() { glDeleteProgram(handle); }
 
 // SHADER PROGRAMS ////////////////////////////////////////////////////////////////////////////
 PhongShader::PhongShader() : GLProgram() {
+
+	// compile and link shaders
+	GLShader* vert = GLShader::VertexShader();
+	GLShader* frag = GLShader::FragmentShader();
+	vert->compile(std::ifstream("./shaders/basic.vshader"));
+	frag->compile(std::ifstream("./shaders/phong.fshader"));
+	link(*vert, *frag);
+	delete vert; delete frag;
+
 	// get uniforms
-	uAlbedo = glGetUniformLocation(*this, "uAlbedo");
-	uAmbient = glGetUniformLocation(*this, "uAmbient");
-	uLight = glGetUniformLocation(*this, "uLight");
+	uAlbedo = getUniformLocation("uAlbedo");
+	uAmbient = getUniformLocation("uAmbient");
+	uLight = getUniformLocation("uLight");
+
+	// get camera uniforms
+	uModelViewMatrix = getUniformLocation("uModelViewMatrix");
+	uProjectionMatrix = getUniformLocation("uProjectionMatrix");
 }
 
 void PhongShader::setAlbedo(const glm::vec3& albedo) {
-	assert(uAlbedo >= 0);
-
 	glUseProgram(*this);
 	glUniform3f(uAlbedo, albedo[0], albedo[1], albedo[2]);
 	glUseProgram(0);
 }
 void PhongShader::setAmbient(const glm::vec3& ambient) {
-	assert(uAmbient >= 0);
-
 	glUseProgram(*this);
 	glUniform3f(uAmbient, ambient[0], ambient[1], ambient[2]);
 	glUseProgram(0);
 }
 void PhongShader::setLight(const glm::vec3& light) {
-	assert(uLight >= 0);
-
 	glUseProgram(*this);
 	glUniform3f(uLight, light[0], light[1], light[2]);
 	glUseProgram(0);
 }
 
-
-PickShader::PickShader() : GLProgram() {
-	uTessFact = glGetUniformLocation(*this, "uTessFact");
+void PhongShader::setModelView(glm::mat4 m) {
+	setUniform(uModelViewMatrix, m);
 }
 
-
-void PickShader::setTessFact(unsigned int n) {
-	assert(uTessFact >= 0);
-	glUseProgram(*this);
-	glUniform1i(uTessFact, n);
-	glUseProgram(0);
+void PhongShader::setProjection(glm::mat4 m) {
+	setUniform(uProjectionMatrix, m);
 }

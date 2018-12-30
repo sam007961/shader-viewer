@@ -12,9 +12,9 @@ VertexP::VertexP(Vertex v) {
 	position = v.position;
 }
 
-void VertexP::enableAttributes(unsigned int i = 0) {
-	glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(i++);
+void VertexP::enableAttributes(unsigned int loc) {
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(loc++);
 }
 
 VertexPN::VertexPN(Vertex v) {
@@ -22,13 +22,13 @@ VertexPN::VertexPN(Vertex v) {
 	normal = v.normal;
 }
 
-void VertexPN::enableAttributes(unsigned int i = 0) {
-	glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 
+void VertexPN::enableAttributes(unsigned int loc) {
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 
+		sizeof(VertexPN), (GLvoid*)offsetof(VertexPN, position));
+	glEnableVertexAttribArray(loc++);
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE,
 		sizeof(VertexPN), (GLvoid*)offsetof(VertexPN, normal));
-	glEnableVertexAttribArray(i++);
-	glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE,
-		sizeof(VertexPN), (GLvoid*)offsetof(VertexPN, normal));
-	glEnableVertexAttribArray(i++);
+	glEnableVertexAttribArray(loc++);
 }
 // PROGRAM INPUT //////////////////////////////////////////////////////////////////////////////
 
