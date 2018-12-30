@@ -1,38 +1,15 @@
 #pragma once
-#include <GL/glew.h>
-#include <glm/glm.hpp>
-#include "Shader.h"
-#include "Constants.h"
+#include "VertexLayout.h"
 
-// Generic Vertex structure
-struct Vertex {
-	glm::vec3 pos;      // position
-	glm::vec3 normal;   // normal
-	glm::vec2 tex;      // uv-coordiantes
+template<class LayoutType>
+class Geometry : public LayoutType {
+private:
+	GLBuffer<unsigned int> ibo;
 
-	Vertex() {}
-
-	Vertex(
-		float x, float y, float z,
-		float nx, float ny, float nz,
-		float tu, float tv)
-		: pos(x, y, z), normal(nx, ny, nz), tex(tu, tv)
-	{}
-};
-
-// Geometry class
-struct Geometry {
-	GLuint vbo, ibo;                      // vertex and index buffer object handles
-	int vboLen, iboLen;                   // length of buffers
-
-	Geometry();                           // generate vbo and ibo
-	Geometry(const Geometry&);            // copy geometry
-	Geometry(const Vertex*, 
-		unsigned short const*, int, int); // load geometry from buffer
-
-	static Geometry* buildPlane(float size);
-	static Geometry* buildCube(float size);
-	static Geometry* buildSphere(float radius,
-		float slices, float stacks);
-	~Geometry();
+public:
+	void loadIndices(std::vector<unsigned int> ib) { // load indices
+		// TODO
+	}
+	unsigned int elementCount() const { return ibo.size; } // get number of elements
+	void bind() { glBindVertexArray(*this); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); }
 };
