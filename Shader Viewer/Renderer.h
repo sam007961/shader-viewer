@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "Shader.h"
 #include "Geometry.h"
 
@@ -9,9 +10,14 @@ private:
 	unsigned int n_elements;
 
 public:
-	Renderer();
+	Renderer() : program(nullptr) {}
 
-	void setProgram(GLProgram* program); // set program
+	void setProgram(GLProgram* program) { // set program
+		assert(program != nullptr);
+		assert((*program) > 0);
+
+		this->program = program;
+	}
 
 	template<class GeometryType>
 	void draw(GeometryType* target) { // draw geometry

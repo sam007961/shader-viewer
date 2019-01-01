@@ -1,6 +1,9 @@
 #pragma once
+#include <GL\glew.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include <assert.h>
+#include <cmath>
 
 #include "NonCopyable.h"
 
@@ -12,10 +15,12 @@ struct Vertex {
 	glm::vec3 normal;   // normal
 	glm::vec2 tex;      // uv-coordiantes
 
-	Vertex(
+	// construct given all data
+	Vertex( 
 		float x, float y, float z,
 		float nx, float ny, float nz,
-		float tu, float tv);
+		float tu, float tv)
+		: position(x, y, z), normal(nx, ny, nz), tex(tu, tv) {}
 };
 
 /* Vertex subtypes
@@ -29,18 +34,33 @@ VertexX {
 struct VertexP {
 	glm::vec3 position;
 
-	static void enableAttributes(unsigned int loc = 0);
+	static void enableAttributes(unsigned int loc = 0) {
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(loc++);
+	}
 	VertexP() {}
-	VertexP(Vertex v);
+	VertexP(Vertex v) {
+		position = v.position;
+	}
 };
 
 struct VertexPN {
 	glm::vec3 position;
 	glm::vec3 normal;
 
-	static void enableAttributes(unsigned int loc = 0);
+	static void enableAttributes(unsigned int loc = 0) {
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPN), (GLvoid*)offsetof(VertexPN, position));
+		glEnableVertexAttribArray(loc++);
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPN), (GLvoid*)offsetof(VertexPN, normal));
+		glEnableVertexAttribArray(loc++);
+	}
 	VertexPN() {}
-	VertexPN(Vertex v);
+	VertexPN(Vertex v) {
+		position = v.position;
+		normal = v.normal;
+	}
 };
 
 // Base Buffer Class
@@ -80,9 +100,9 @@ private:
 	GLuint handle; // vertex array object handle
 
 public:
-	VertexLayout();
-	~VertexLayout();
-	operator GLuint() const; // cast to GLuint
+	VertexLayout() { glGenVertexArrays(1, &handle); }
+	~VertexLayout() { glDeleteVertexArrays(1, &handle); }
+	operator GLuint() const { return handle; } // cast to GLuint
 };
 
 // InterleavedLayout
@@ -112,6 +132,7 @@ class VXLayout : public VertexLayout {
 
 public:
 	VXLayout() { /*TODO*/ }
-	void loadData(std::vector<Vertex> vb) { /*TODO*/ }
+	void loadPositions(std::vector<VertexP> vb) { /*TODO*/ }
+	void loadAttributes(std::vector<X> vb) { /*TODO*/ }
 };
 

@@ -30,32 +30,17 @@ static void initShaders() {
 	g_renderer.setProgram(g_phong);
 
 	std::vector<VertexPN> vertices;
-	VertexPN vert;
-	vert.position = glm::vec3(-1, 1, 0);
-	vert.normal = glm::vec3(0, 0, 1);
-	vertices.push_back(vert);
-
-	vert.position = glm::vec3(-1, -1, 0);
-	vert.normal = glm::vec3(0, 0, 1);
-	vertices.push_back(vert);
-
-	vert.position = glm::vec3(1, 1, 0);
-	vert.normal = glm::vec3(0, 0, 1);
-	vertices.push_back(vert);
-
-	vert.position = glm::vec3(1, -1, 0);
-	vert.normal = glm::vec3(0, 0, 1);
-	vertices.push_back(vert);
-
+	std::vector<unsigned int> indices;
+	buildUVSphere(1.0, 24, 24, vertices, indices);
 	g_target->loadData(vertices);
-
-	std::vector<unsigned int> indices = { 0, 1, 2, 2, 1, 3 };
 	g_target->loadIndices(indices);
-	g_phong->setModelView(glm::mat4(1));
-	g_phong->setProjection(glm::mat4(1));
-	g_phong->setAlbedo({ 0.5, 0.7, 0.0 });
+	g_phong->setModelView(
+		glm::lookAt(glm::vec3(-2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1))
+	);
+	g_phong->setProjection(glm::perspective(PI / 2, 1.0, 0.01, 100.0));
+	g_phong->setAlbedo({ 0.5, 0.0, 0.5 });
 	g_phong->setAmbient({ 0, 0, 0 });
-	g_phong->setLight({ -1, -1, -1 });
+	g_phong->setLight({ 0, -1, +1 });
 
 	checkGlErrors();
 }
@@ -71,6 +56,11 @@ static void display() {
 	glutSwapBuffers();                                    // show the back buffer (where we rendered stuff)
 }
 
+static void reshape(const int w, const int h) {
+	glViewport(0, 0, w, h);
+	glutPostRedisplay();
+}
+
 void glutTimer(int value)
 {
 	glutPostRedisplay();
@@ -83,6 +73,7 @@ int main(int argc, char * argv[]) {
 	glutInitWindowSize(512, 512);                              // create a window
 	glutCreateWindow("Shader Viewer");                           // title the window
 	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
 	glutTimerFunc(10, glutTimer, 1);
 
 	GLenum glewError = glewInit();
@@ -92,13 +83,13 @@ int main(int argc, char * argv[]) {
 	}
 
 	glClearColor(0, 0, 0, 1.);
-	glClearDepth(0.);
+	glClearDepth(1.);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	//glCullFace(GL_BACK);
 	//glEnable(GL_CULL_FACE);
-	//glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_GREATER);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 	glReadBuffer(GL_BACK);
 
 	initShaders();
