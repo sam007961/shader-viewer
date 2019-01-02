@@ -7,10 +7,12 @@
 #include <memory>
 #include <string>
 
+using glm::vec3;
+
 #include "Geometry.h"
 #include "Shader.h"
 #include "Renderer.h"
-#include "RigidBodyTransform.h"
+#include "Camera.h"
 
 Renderer g_renderer;
 Geometry<InterleavedLayout<VertexPN> >* g_target;
@@ -37,13 +39,20 @@ static void initShaders() {
 	buildUVSphere(1.0, 24, 24, vertices, indices);
 	g_target->loadData(vertices);
 	g_target->loadIndices(indices);
-	std::cout << g_target->elementCount() << std::endl;
-	RigidBodyTransform rbt(glm::vec3(0, 0, -2), glm::quat(1, 0, 0 , 0));
-	g_phong->setModelView(rbt.inv().toMat4());
-	g_phong->setProjection(glm::perspective(PI / 2.0f, 1.0f, 0.01f, 100.0f));
+	Camera camera;
+	camera.setPosition(vec3(0, 1, 2));
+	camera.lookAt(vec3(0, 0, 0));
+	camera.setProjection(PI / 2.0f, 1.0f, 0.01f, 100.0f);
+	auto m = camera.makeViewMatrix();
+	for (int i = 0; i < 16; i++) {
+		std::cout << glm::value_ptr(m[0])[i] << std::endl;
+	}
+
+	g_phong->setModelView(camera.makeViewMatrix());
+	g_phong->setProjection(camera.makeProjMatrix());
 	g_phong->setAlbedo({ 0.5, 0.0, 0.5 });
 	g_phong->setAmbient({ 0, 0, 0 });
-	g_phong->setLight({ 0, -1, +1 });
+	g_phong->setLight({ -1, 3, 0 });
 
 	checkGlErrors();
 }

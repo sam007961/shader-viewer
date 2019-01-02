@@ -1,17 +1,12 @@
 #include <cmath>
 #include "Scene.h"
 
-using vec3 = glm::vec3;
-using quat = glm::quat;
-using mat4 = glm::mat4;
-
 SceneObject::SceneObject() {}
 
-void SceneObject::setPosition(vec3 position) { rbt.translation = position; }
-void SceneObject::setRotation(quat rotation) { rbt.rotation = glm::normalize(rotation); }
-void SceneObject::translate(vec3 translation) { rbt.translation += translation; }
-void SceneObject::rotate(vec3 axis, float angle) { 
-	RigidBodyTransform rbt_rot(vec3(0), glm::angleAxis(angle, glm::normalize(axis)));
-	rbt = rbt * rbt_rot;
+void SceneObject::setPosition(glm::vec3 position) { rbt.translation = position; }
+void SceneObject::setRotation(glm::quat rotation) { rbt.rotation = glm::normalize(rotation); }
+void SceneObject::translate(glm::vec3 translation) { rbt.translation += translation; }
+void SceneObject::rotate(float angle, glm::vec3 axis) {
+	rbt.rotation = rbt.rotation * glm::angleAxis(angle, axis);
 }
-mat4 SceneObject::makeModelMatrix() const { return rbt.toMat4(); }
+glm::mat4 SceneObject::makeModelMatrix() const { return rbt.toMat4(); }
