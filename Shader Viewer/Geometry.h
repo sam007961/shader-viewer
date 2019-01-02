@@ -19,9 +19,9 @@ public:
 	}
 	void loadIndices(std::vector<unsigned int> ib) { 
 		ibo.bufferData(ib); 
-		n_elements = ibo.size() / sizeof(unsigned int); 
+		n_elements = (unsigned int) ibo.size() / sizeof(unsigned int); 
 	}
-	inline size_t elementCount() const { return n_elements; } // get number of elements
+	inline unsigned int elementCount() const { return n_elements; } // get number of elements
 };
 
 // function to construct sphere geometry
@@ -35,7 +35,7 @@ void buildUVSphere(const float radius, const unsigned int slices, const unsigned
 	auto indx = indices.begin();
 
 	// calculate sines and cosines
-	const float sliceRad = 2.0 * PI / slices;
+	const float sliceRad = 2.0f * PI / slices;
 	const float stackRad = PI / stacks;
 
 	// populate vertices
@@ -48,7 +48,7 @@ void buildUVSphere(const float radius, const unsigned int slices, const unsigned
 			*vert++ = Vertex(
 				x * radius, y * radius, z * radius,
 				x, y, z,
-				1.0 / slices * u, 1.0 / stacks * v
+				1.0f / slices * u, 1.0f / stacks * v
 			);
 		}
 	}
@@ -56,13 +56,13 @@ void buildUVSphere(const float radius, const unsigned int slices, const unsigned
 	// populate indices
 	for (unsigned int u = 0; u < slices; u++) {
 		for (unsigned int v = 0; v < stacks; v++) {
-			*indx++ = stacks * u + v;
-			*indx++ = stacks * (u + 1) + v + 1;
-			*indx++ = stacks * u + v + 1;
+			*indx++ = (stacks + 1) * u + v;
+			*indx++ = (stacks + 1) * (u + 1) + v + 1;
+			*indx++ = (stacks + 1) * u + v + 1;
 
-			*indx++ = stacks * u + v;
-			*indx++ = stacks * (u + 1) + v;
-			*indx++ = stacks * (u + 1) + v + 1;
+			*indx++ = (stacks + 1) * u + v;
+			*indx++ = (stacks + 1) * (u + 1) + v;
+			*indx++ = (stacks + 1) * (u + 1) + v + 1;
 		}
 	}
 }

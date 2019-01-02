@@ -17,7 +17,7 @@ GLShader::~GLShader() {
 void GLShader::compile(const char* source) {
 	GLint compiled = 0;  // Compiled flag
 	const char *ptrs[] = { source };
-	const GLint lens[] = { std::strlen(source) };
+	const GLint lens[] = { (GLint)std::strlen(source) };
 	glShaderSource(handle, 1, ptrs, lens);
 	glCompileShader(handle);
 	glGetShaderiv(handle, GL_COMPILE_STATUS, &compiled);

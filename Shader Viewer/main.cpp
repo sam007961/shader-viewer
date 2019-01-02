@@ -1,13 +1,16 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <string>
+
 #include "Geometry.h"
 #include "Shader.h"
 #include "Renderer.h"
-#include <string>
+#include "RigidBodyTransform.h"
 
 Renderer g_renderer;
 Geometry<InterleavedLayout<VertexPN> >* g_target;
@@ -34,10 +37,10 @@ static void initShaders() {
 	buildUVSphere(1.0, 24, 24, vertices, indices);
 	g_target->loadData(vertices);
 	g_target->loadIndices(indices);
-	g_phong->setModelView(
-		glm::lookAt(glm::vec3(-2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1))
-	);
-	g_phong->setProjection(glm::perspective(PI / 2, 1.0, 0.01, 100.0));
+	std::cout << g_target->elementCount() << std::endl;
+	RigidBodyTransform rbt(glm::vec3(0, 0, -2), glm::quat(1, 0, 0 , 0));
+	g_phong->setModelView(rbt.inv().toMat4());
+	g_phong->setProjection(glm::perspective(PI / 2.0f, 1.0f, 0.01f, 100.0f));
 	g_phong->setAlbedo({ 0.5, 0.0, 0.5 });
 	g_phong->setAmbient({ 0, 0, 0 });
 	g_phong->setLight({ 0, -1, +1 });

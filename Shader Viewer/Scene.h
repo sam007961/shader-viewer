@@ -1,14 +1,8 @@
 #pragma once
-#include <glm/glm.hpp>
-//#include <glm/>
+#include "RigidBodyTransform.h"
 
 class SceneObject {
 protected:
-	using vec3 = glm::vec3;
-	using quat = glm::quat;
-	using mat4 = glm::mat4;
+	RigidBodyTransform rbt; // position and orientation
 
-	// rigid body transformation
-	vec3 translation;
-	quat rotaion;
 };
