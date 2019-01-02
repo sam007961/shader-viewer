@@ -2,11 +2,16 @@
 #include <glm/gtc/quaternion.hpp>
 
 struct RigidBodyTransform {
-	glm::vec3 translation;
-	glm::quat rotation;
+	using vec3 = glm::vec3;
+	using quat = glm::quat;
+	using mat4 = glm::mat4;
 
-	RigidBodyTransform(glm::vec3 translation, glm::quat rotaion);
+	vec3 translation;
+	quat rotation;
+
+	RigidBodyTransform();
+	RigidBodyTransform(vec3 translation, quat rotaion);
 	RigidBodyTransform operator*(const RigidBodyTransform& other) const;
 	RigidBodyTransform inv() const;
-	glm::mat4 toMat4() const;
+	mat4 toMat4() const;
 };

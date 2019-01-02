@@ -28,11 +28,7 @@
     <None Include="Shaders\pick.fshader">
       <Filter>Shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Shaders\basic.vshader">
-      <Filter>Shaders</Filter>
-    </FxCompile>
+    <None Include="Shaders\basic.vshader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLError.h">
@@ -77,6 +73,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RigidBodyTransform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
