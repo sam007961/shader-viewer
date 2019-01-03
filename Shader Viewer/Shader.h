@@ -74,3 +74,12 @@ public:
 	void setColor(const glm::vec3& color);
 	virtual void loadMaterial(const Material& material);
 };
+
+class PhongTexture : public LightingShader {
+private:
+	GLuint uTexutre;
+
+public:
+	PhongTexture();
+	//void setTexture(
+};

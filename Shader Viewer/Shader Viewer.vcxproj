@@ -156,6 +156,7 @@
     <None Include="Shaders\phong_solid.fshader">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="Shaders\phong_texture.fshader" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\lighting.vshader">
@@ -176,6 +177,7 @@
     <ClInclude Include="RigidBodyTransform.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="VertexLayout.h" />
   </ItemGroup>
   <ItemGroup>

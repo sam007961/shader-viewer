@@ -23,27 +23,35 @@ public:
 //
 //g_mouseClickDown = g_mouseLClickButton || g_mouseRClickButton || g_mouseMClickButton;
 
-class PhongSolidDemo : public Demo {
-private:
+class RoomDemo : public Demo {
+protected:
 	typedef Geometry<InterleavedLayout<VertexPN> > Geometry;
 	typedef DrawableObject<Geometry> DObject;
 
-	Renderer renderer;
 	Geometry geom_sphere, geom_plane;
 	Camera camera;
 	DObject sphere, floor, ceiling, back_wall, front_wall, left_wall, right_wall;
-	PhongSolid phong;
+
+	Renderer renderer;
+	LightingShader* shader;
+
 	bool clicked;
 
 	void draw(const DObject& obj, glm::mat4 viewMatrix);
-
+	
 public:
-	PhongSolidDemo();
+	RoomDemo();
+	~RoomDemo();
 	virtual void draw();
 	virtual void reshape(const int w, const int h);
 	virtual void mouse(const int button, const int state, const int x, const int y);
 	virtual void motion(const int x, const int y, const int dx, const int dy);
+};
 
+class PhongSolidDemo : public RoomDemo {
+public:
+	PhongSolidDemo();
+	virtual void draw();
 };
 
 //class PhongShaderDemo : public Demo {
