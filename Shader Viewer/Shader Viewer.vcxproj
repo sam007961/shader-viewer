@@ -176,8 +176,8 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Demo.h" />
     <ClInclude Include="Geometry.h" />
-    <ClInclude Include="GLError.h" />
     <ClInclude Include="NonCopyable.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RigidBodyTransform.h" />
@@ -187,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Demo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RigidBodyTransform.cpp" />
     <ClCompile Include="Scene.cpp" />

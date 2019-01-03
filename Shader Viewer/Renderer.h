@@ -19,7 +19,7 @@ public:
 	}
 
 	template<class GeometryType>
-	void draw(GeometryType* target) { // draw geometry
+	void draw(const GeometryType* target) const { // draw geometry
 		assert(program != nullptr);
 		assert((*program) > 0);
 

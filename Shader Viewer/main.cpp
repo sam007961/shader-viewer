@@ -13,12 +13,94 @@ using glm::vec3;
 #include "Shader.h"
 #include "Renderer.h"
 #include "Camera.h"
+#include "Demo.h"
 
-Renderer g_renderer;
-Geometry<InterleavedLayout<VertexPN> >* g_target;
-PhongShader* g_phong;
+// globals
+#define DEMO PhongShaderDemo
+static Demo* g_demo;
+static int g_mouseClickX = 0;
+static int g_mouseClickY = 0;
+static int g_mouseState = 0;
+static int g_windowWidth = 640;
+static int g_windowHeight = 640;
 
-void checkGlErrors() {
+
+// state intialization
+static void initGlutState();
+static void initGLState();
+
+// glut callbacks
+static void display();
+static void reshape(const int w, const int h);
+static void mouse(const int button, const int state, const int x, const int y);
+static void motion(const int x, const int y);
+
+// error checking
+static void checkGlErrors();
+
+// main
+int main(int argc, char * argv[]) {
+	glutInit(&argc, argv);
+	initGlutState();
+	GLenum glewError = glewInit();
+	if (glewError != GLEW_OK)
+		throw std::runtime_error("failed to load extentions.");
+	initGLState();
+	g_demo = new DEMO;
+	glutMainLoop();
+	delete g_demo;
+	return 0;
+}
+
+static void initGlutState() {
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH); //  RGBA pixel channels and double buffering
+	glutInitWindowSize(512, 512);                              // create a window
+	glutCreateWindow("Shader Viewer");                         // title the window
+	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
+}
+
+static void initGLState() {
+	// Defualt GL state
+	glClearColor(0, 0, 0, 1.);
+	glClearDepth(1.);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glReadBuffer(GL_BACK);
+}
+
+static void display() {
+	g_demo->draw();
+	glutSwapBuffers(); // show the back buffer
+}
+
+static void reshape(const int w, const int h) {
+	g_windowWidth = w;
+	g_windowHeight = h;
+	g_demo->reshape(w, h);
+	glutPostRedisplay();
+}
+
+static void mouse(const int button, const int state, const int x, const int y) {
+	g_mouseClickX = x;
+	g_mouseClickY = g_windowHeight - y - 1;
+	g_mouseState = state;
+	g_demo->mouse(button, state, g_mouseClickX, g_mouseClickY);
+}
+
+static void motion(const int x, const int y) {
+	const float dx = float(x - g_mouseClickX);
+	const float dy = float(-(g_windowHeight - y - 1 - g_mouseClickY));
+	g_mouseClickX = x;
+	g_mouseClickY = g_windowHeight - y - 1;
+	g_demo->motion(g_mouseClickX, g_mouseClickY, g_mouseState, dx, dy);
+}
+
+static void checkGlErrors() {
 	const GLenum errCode = glGetError();
 
 	if (errCode != GL_NO_ERROR) {
@@ -27,88 +109,4 @@ void checkGlErrors() {
 		std::cerr << error << std::endl;
 		throw std::runtime_error(error);
 	}
-}
-
-static void initShaders() {
-	g_phong = new PhongShader();
-	g_target = new Geometry<InterleavedLayout<VertexPN> >();
-	g_renderer.setProgram(g_phong);
-
-	std::vector<VertexPN> vertices;
-	std::vector<unsigned int> indices;
-	buildUVSphere(1.0, 24, 24, vertices, indices);
-	g_target->loadData(vertices);
-	g_target->loadIndices(indices);
-	Camera camera;
-	camera.setPosition(vec3(0, 1, 2));
-	camera.lookAt(vec3(0, 0, 0));
-	camera.setProjection(PI / 2.0f, 1.0f, 0.01f, 100.0f);
-	auto m = camera.makeViewMatrix();
-	for (int i = 0; i < 16; i++) {
-		std::cout << glm::value_ptr(m[0])[i] << std::endl;
-	}
-
-	g_phong->setModelView(camera.makeViewMatrix());
-	g_phong->setProjection(camera.makeProjMatrix());
-	g_phong->setAlbedo({ 0.5, 0.0, 0.5 });
-	g_phong->setAmbient({ 0, 0, 0 });
-	g_phong->setLight({ -1, 3, 0 });
-
-	checkGlErrors();
-}
-
-static void draw() {
-	g_renderer.draw(g_target);
-}
-
-static void display() {
-	//glUseProgram(*basicShader);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);                   // clear framebuffer color&depth
-	draw();
-	glutSwapBuffers();                                    // show the back buffer (where we rendered stuff)
-}
-
-static void reshape(const int w, const int h) {
-	glViewport(0, 0, w, h);
-	glutPostRedisplay();
-}
-
-void glutTimer(int value)
-{
-	glutPostRedisplay();
-	glutTimerFunc(1, glutTimer, 1);
-}
-
-int main(int argc, char * argv[]) {
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH); //  RGBA pixel channels and double buffering
-	glutInitWindowSize(512, 512);                              // create a window
-	glutCreateWindow("Shader Viewer");                           // title the window
-	glutDisplayFunc(display);
-	glutReshapeFunc(reshape);
-	glutTimerFunc(10, glutTimer, 1);
-
-	GLenum glewError = glewInit();
-	if (glewError != GLEW_OK)
-	{
-		throw std::runtime_error("failed to load extentions.");
-	}
-
-	glClearColor(0, 0, 0, 1.);
-	glClearDepth(1.);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	//glCullFace(GL_BACK);
-	//glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glReadBuffer(GL_BACK);
-
-	initShaders();
-	
-	glutTimerFunc(10, glutTimer, 1);
-	glutMainLoop();
-	
-	//Plane plane(1.0f);
-	return 0;
 }
