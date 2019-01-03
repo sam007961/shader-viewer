@@ -1,7 +1,6 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -58,11 +57,14 @@ static void initGlutState() {
 	glutCreateWindow("Shader Viewer");                         // title the window
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
+	glutMouseFunc(mouse);
+	glutMotionFunc(motion);
 }
 
 static void initGLState() {
 	// Defualt GL state
-	glClearColor(0, 0, 0, 1.);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glEnable(GL_FRAMEBUFFER_SRGB);
 	glClearDepth(1.);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -93,11 +95,11 @@ static void mouse(const int button, const int state, const int x, const int y) {
 }
 
 static void motion(const int x, const int y) {
-	const float dx = float(x - g_mouseClickX);
-	const float dy = float(-(g_windowHeight - y - 1 - g_mouseClickY));
+	const int dx = x - g_mouseClickX;
+	const int dy = -(g_windowHeight - y - 1 - g_mouseClickY);
 	g_mouseClickX = x;
 	g_mouseClickY = g_windowHeight - y - 1;
-	g_demo->motion(g_mouseClickX, g_mouseClickY, g_mouseState, dx, dy);
+	g_demo->motion(g_mouseClickX, g_mouseClickY, dx, dy);
 }
 
 static void checkGlErrors() {

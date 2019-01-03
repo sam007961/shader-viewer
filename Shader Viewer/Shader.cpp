@@ -64,9 +64,21 @@ GLuint GLProgram::getUniformLocation(const char* unif) {
 	return glGetUniformLocation(handle, unif);
 }
 
+template<typename T>
+void GLProgram::setUniform(GLuint unif, T m) {}
+
+template<>
 void GLProgram::setUniform(GLuint unif, glm::mat4 m) {
 	glUseProgram(handle);
 	glUniformMatrix4fv(unif,
+		1, GL_FALSE, glm::value_ptr(m[0]));
+	glUseProgram(0);
+}
+
+template<>
+void GLProgram::setUniform(GLuint unif, glm::mat3 m) {
+	glUseProgram(handle);
+	glUniformMatrix3fv(unif,
 		1, GL_FALSE, glm::value_ptr(m[0]));
 	glUseProgram(0);
 }
@@ -94,6 +106,7 @@ PhongShader::PhongShader() : GLProgram() {
 	// get camera uniforms
 	uModelViewMatrix = getUniformLocation("uModelViewMatrix");
 	uProjectionMatrix = getUniformLocation("uProjectionMatrix");
+	uNormalMatrix = getUniformLocation("uNormalMatrix");
 }
 
 void PhongShader::setAlbedo(const glm::vec3& albedo) {
@@ -118,4 +131,7 @@ void PhongShader::setModelView(glm::mat4 m) {
 
 void PhongShader::setProjection(glm::mat4 m) {
 	setUniform(uProjectionMatrix, m);
+}
+void PhongShader::setNormalMatrix(glm::mat3 m) {
+	setUniform(uNormalMatrix, m);
 }

@@ -34,8 +34,8 @@ void buildUVSphere(const float radius, const unsigned int slices, const unsigned
 	auto vert = vertices.begin();
 	auto indx = indices.begin();
 
-	// calculate sines and cosines
-	const float sliceRad = 2.0f * PI / slices;
+	// calculate angles
+	const float sliceRad = -2.0f * PI / slices;
 	const float stackRad = PI / stacks;
 
 	// populate vertices
@@ -54,8 +54,8 @@ void buildUVSphere(const float radius, const unsigned int slices, const unsigned
 	}
 
 	// populate indices
-	for (unsigned int u = 0; u < slices; u++) {
-		for (unsigned int v = 0; v < stacks; v++) {
+	for (unsigned int v = 0; v < slices; v++) {
+		for (unsigned int u = 0; u < stacks; u++) {
 			*indx++ = (stacks + 1) * u + v;
 			*indx++ = (stacks + 1) * (u + 1) + v + 1;
 			*indx++ = (stacks + 1) * u + v + 1;
@@ -67,4 +67,40 @@ void buildUVSphere(const float radius, const unsigned int slices, const unsigned
 	}
 }
 
+template<typename VertexType>
+void buildPlane(const float w, float h, std::vector<VertexType>& vertices, std::vector<unsigned int>& indices) {
+	// allocate storage
+	vertices.resize(4);
+	indices.resize(6);
+	auto vert = vertices.begin();
+	auto indx = indices.begin();
 
+	// populate vertices
+	*vert++ = Vertex(
+		-w / 2.0f, h / 2.0f, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f
+	);
+
+	*vert++ = Vertex(
+		-w / 2.0f, -h / 2.0f, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f
+	);
+
+	*vert++ = Vertex(
+		+w / 2.0f, h / 2.0f, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 1.0f
+	);
+
+	*vert++ = Vertex(
+		+w / 2.0f, -h / 2.0f, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f
+	);
+
+	// populate indices
+	*indx++ = 0; *indx++ = 1; *indx++ = 2;
+	*indx++ = 2; *indx++ = 1; *indx++ = 3;
+}

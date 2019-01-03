@@ -33,7 +33,8 @@ protected:
 	GLuint getUniformLocation(const char* unif);
 
 	// helpers for setting uniforms
-	void setUniform(GLuint unif, glm::mat4 m);
+	template<typename T>
+	void setUniform(GLuint unif, T m);
 
 public:
 	GLProgram();
@@ -49,7 +50,7 @@ private:
 	GLuint uAlbedo, uAmbient, uLight;
 
 	// Camera
-	GLuint uModelViewMatrix, uProjectionMatrix;
+	GLuint uModelViewMatrix, uProjectionMatrix, uNormalMatrix;
 
 public:
 	PhongShader();
@@ -58,4 +59,5 @@ public:
 	void setLight(const glm::vec3& light);
 	void setModelView(glm::mat4 m);
 	void setProjection(glm::mat4 m);
+	void setNormalMatrix(glm::mat3 m);
 };
