@@ -39,3 +39,20 @@ public:
 	virtual void motion(const int x, const int y, const int dx, const int dy);
 
 };
+
+//class PhongShaderDemo : public Demo {
+//private:
+//	Renderer renderer;
+//	Camera camera;
+//	Geometry<InterleavedLayout<VertexPN> > sphere, plane;
+//	PhongShader phong;
+//	bool clicked;
+//
+//public:
+//	PhongShaderDemo();
+//	virtual void draw();
+//	virtual void reshape(const int w, const int h);
+//	virtual void mouse(const int button, const int state, const int x, const int y);
+//	virtual void motion(const int x, const int y, const int dx, const int dy);
+//
+//};

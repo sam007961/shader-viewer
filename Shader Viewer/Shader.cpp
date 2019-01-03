@@ -102,6 +102,7 @@ PhongShader::PhongShader() : GLProgram() {
 	uAlbedo = getUniformLocation("uAlbedo");
 	uAmbient = getUniformLocation("uAmbient");
 	uLight = getUniformLocation("uLight");
+	uLightColor = getUniformLocation("uLightColor");
 
 	// get camera uniforms
 	uModelViewMatrix = getUniformLocation("uModelViewMatrix");
@@ -122,6 +123,12 @@ void PhongShader::setAmbient(const glm::vec3& ambient) {
 void PhongShader::setLight(const glm::vec3& light) {
 	glUseProgram(*this);
 	glUniform3f(uLight, light[0], light[1], light[2]);
+	glUseProgram(0);
+}
+
+void PhongShader::setLightColor(const glm::vec3& lightColor) {
+	glUseProgram(*this);
+	glUniform3f(uLightColor, lightColor[0], lightColor[1], lightColor[2]);
 	glUseProgram(0);
 }
 

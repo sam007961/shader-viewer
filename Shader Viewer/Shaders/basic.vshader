@@ -16,6 +16,6 @@ void main(){
     vNormal = uNormalMatrix * aNormal;
     vTexCoord = aTexCoord; 
     vec4 cPosition =  uModelViewMatrix * vec4(aPosition, 1.0); // camera frame position (vec4)
-    vec3 vPosition = vec3(cPosition); 
+    vPosition = vec3(cPosition); 
     gl_Position = uProjectionMatrix * cPosition;
 }

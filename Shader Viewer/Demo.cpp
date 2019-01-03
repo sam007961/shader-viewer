@@ -28,6 +28,24 @@ PhongShaderDemo::PhongShaderDemo() : clicked(false) {
 	camera.lookAt(glm::vec3(0, 0, 0));
 }
 
+#define MVFLOOR glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -2.0f, 0.0f)) \
+* glm::rotate(glm::mat4(1.0f), -PI / 2, glm::vec3(1.0f, 0.0f, 0.0f))
+
+#define MVFRONTWALL glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f)) \
+* glm::rotate(glm::mat4(1.0f), 0.0f / 2, glm::vec3(1.0f, 0.0f, 0.0f))
+
+#define MVRIGHTWALL glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)) \
+* glm::rotate(glm::mat4(1.0f), -PI / 2, glm::vec3(0.0f, 1.0f, 0.0f))
+
+#define MVLEFTWALL glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)) \
+* glm::rotate(glm::mat4(1.0f), PI / 2, glm::vec3(0.0f, 1.0f, 0.0f))
+
+#define MVBACKWALL glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f)) \
+* glm::rotate(glm::mat4(1.0f), PI, glm::vec3(1.0f, 0.0f, 0.0f))
+
+#define MVCEILING glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f)) \
+* glm::rotate(glm::mat4(1.0f), PI / 2, glm::vec3(1.0f, 0.0f, 0.0f))
+
 void PhongShaderDemo::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear framebuffer
 
@@ -35,20 +53,20 @@ void PhongShaderDemo::draw() {
 	glm::mat4 modelMatrix(1); // model
 	glm::mat4 viewMatrix = camera.makeViewMatrix(); // view
 	glm::mat4 modelViewMatrix = viewMatrix * modelMatrix; // model view
-	glm::mat3 normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix)));// normal
+	glm::mat3 normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
 
 	phong.setModelView(modelViewMatrix);
 	phong.setProjection(camera.makeProjMatrix());
 	phong.setNormalMatrix(normalMatrix);
 	phong.setAlbedo({ 0.5f, 0.0f, 0.5f });
 	phong.setAmbient({ 0.05f, 0.05f, 0.05f });
-	phong.setLight( glm::mat3(viewMatrix) * glm::vec3(-1.99, 1.99, 1.99));
+	phong.setLight(glm::vec3(modelViewMatrix * glm::vec4(-1.8, 1.8, 1.8, 1)));
+	phong.setLightColor(glm::vec3(1, 1, 1));
 
 	renderer.draw(&sphere); // render
 
 	// floor
-	modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -2.0f, 0.0f)) // model
-		* glm::rotate(glm::mat4(1.0f), -PI / 2, glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMatrix = MVFLOOR; // model
 	modelViewMatrix = viewMatrix * modelMatrix; // model view
 	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
 	
@@ -59,8 +77,7 @@ void PhongShaderDemo::draw() {
 	renderer.draw(&plane); // render
 
 	// front wall
-	modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f)) // model
-		* glm::rotate(glm::mat4(1.0f), 0.0f / 2, glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMatrix = MVFRONTWALL; // model
 	modelViewMatrix = viewMatrix * modelMatrix; // model view
 	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
 
@@ -71,8 +88,7 @@ void PhongShaderDemo::draw() {
 	renderer.draw(&plane); // render
 
 	// right wall
-	modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)) // model
-		* glm::rotate(glm::mat4(1.0f), -PI / 2, glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMatrix = MVRIGHTWALL; // model
 	modelViewMatrix = viewMatrix * modelMatrix; // model view
 	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
 
@@ -83,8 +99,7 @@ void PhongShaderDemo::draw() {
 	renderer.draw(&plane); // render
 
 	// left wall
-	modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)) // model
-		* glm::rotate(glm::mat4(1.0f), PI / 2, glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMatrix = MVLEFTWALL; // model
 	modelViewMatrix = viewMatrix * modelMatrix; // model view
 	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
 
@@ -95,8 +110,7 @@ void PhongShaderDemo::draw() {
 	renderer.draw(&plane); // render
 
 	// back wall
-	modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f)) // model
-		* glm::rotate(glm::mat4(1.0f), PI, glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMatrix = MVBACKWALL; // model
 	modelViewMatrix = viewMatrix * modelMatrix; // model view
 	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
 
@@ -107,8 +121,7 @@ void PhongShaderDemo::draw() {
 	renderer.draw(&plane); // render
 
 	// ceiling
-	modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f)) // model
-		* glm::rotate(glm::mat4(1.0f), PI / 2, glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMatrix = MVCEILING; // model
 	modelViewMatrix = viewMatrix * modelMatrix; // model view
 	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
 

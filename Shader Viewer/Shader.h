@@ -47,7 +47,7 @@ public:
 class PhongShader : public GLProgram {
 private:
 	// Albedo | Ambient Light | Light Direction
-	GLuint uAlbedo, uAmbient, uLight;
+	GLuint uAlbedo, uAmbient, uLight, uLightColor;
 
 	// Camera
 	GLuint uModelViewMatrix, uProjectionMatrix, uNormalMatrix;
@@ -57,6 +57,7 @@ public:
 	void setAlbedo(const glm::vec3& albedo);
 	void setAmbient(const glm::vec3& ambient);
 	void setLight(const glm::vec3& light);
+	void setLightColor(const glm::vec3& lightColor);
 	void setModelView(glm::mat4 m);
 	void setProjection(glm::mat4 m);
 	void setNormalMatrix(glm::mat3 m);
