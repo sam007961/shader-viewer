@@ -83,23 +83,28 @@ void GLProgram::setUniform(GLuint unif, glm::mat3 m) {
 	glUseProgram(0);
 }
 
+template<>
+void GLProgram::setUniform(GLuint unif, glm::vec3 v) {
+	glUseProgram(handle);
+	glUniform3f(unif, v[0], v[1], v[2]);
+	glUseProgram(0);
+}
 GLProgram::operator GLuint() const { return handle; }
 
 GLProgram::~GLProgram() { glDeleteProgram(handle); }
 
 // SHADER PROGRAMS ////////////////////////////////////////////////////////////////////////////
-PhongShader::PhongShader() : GLProgram() {
+LightingShader::LightingShader(const char* frag_file) : GLProgram() {
 
 	// compile and link shaders
 	GLShader* vert = GLShader::VertexShader();
 	GLShader* frag = GLShader::FragmentShader();
-	vert->compile(std::ifstream("./shaders/basic.vshader"));
-	frag->compile(std::ifstream("./shaders/phong.fshader"));
+	vert->compile(std::ifstream("./shaders/lighting.vshader"));
+	frag->compile(std::ifstream(frag_file));
 	link(*vert, *frag);
 	delete vert; delete frag;
 
 	// get uniforms
-	uAlbedo = getUniformLocation("uAlbedo");
 	uAmbient = getUniformLocation("uAmbient");
 	uLight = getUniformLocation("uLight");
 	uLightColor = getUniformLocation("uLightColor");
@@ -110,35 +115,41 @@ PhongShader::PhongShader() : GLProgram() {
 	uNormalMatrix = getUniformLocation("uNormalMatrix");
 }
 
-void PhongShader::setAlbedo(const glm::vec3& albedo) {
-	glUseProgram(*this);
-	glUniform3f(uAlbedo, albedo[0], albedo[1], albedo[2]);
-	glUseProgram(0);
+void LightingShader::setAmbient(const glm::vec3& ambient) {
+	setUniform(uAmbient, ambient);
 }
-void PhongShader::setAmbient(const glm::vec3& ambient) {
-	glUseProgram(*this);
-	glUniform3f(uAmbient, ambient[0], ambient[1], ambient[2]);
-	glUseProgram(0);
-}
-void PhongShader::setLight(const glm::vec3& light) {
-	glUseProgram(*this);
-	glUniform3f(uLight, light[0], light[1], light[2]);
-	glUseProgram(0);
+void LightingShader::setLight(const glm::vec3& light, glm::mat4 view) {
+	glm::vec3 clight = glm::vec3(view * glm::vec4(light, 1));
+	setUniform(uLight, clight);
 }
 
-void PhongShader::setLightColor(const glm::vec3& lightColor) {
-	glUseProgram(*this);
-	glUniform3f(uLightColor, lightColor[0], lightColor[1], lightColor[2]);
-	glUseProgram(0);
+void LightingShader::setLightColor(const glm::vec3& lightColor) {
+	setUniform(uLightColor, lightColor);
 }
 
-void PhongShader::setModelView(glm::mat4 m) {
+void LightingShader::setModelView(glm::mat4 m) {
 	setUniform(uModelViewMatrix, m);
+	glm::mat3 normalMatrix = glm::inverse(glm::transpose(glm::mat3(m)));
+	setUniform(uNormalMatrix, normalMatrix);
 }
 
-void PhongShader::setProjection(glm::mat4 m) {
+void LightingShader::setProjection(glm::mat4 m) {
 	setUniform(uProjectionMatrix, m);
 }
-void PhongShader::setNormalMatrix(glm::mat3 m) {
-	setUniform(uNormalMatrix, m);
+
+void LightingShader::loadMaterial(const Material& material) {
+	setAmbient(material.ambient);
+}
+
+PhongSolid::PhongSolid() : LightingShader("./shaders/phong_solid.fshader") {
+	uColor = getUniformLocation("uColor");
+}
+
+void PhongSolid::setColor(const glm::vec3& color) {
+	setUniform(uColor, color);
+}
+
+void PhongSolid::loadMaterial(const Material& material) {
+	LightingShader::loadMaterial(material);
+	setColor(material.color);
 }

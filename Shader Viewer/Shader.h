@@ -5,6 +5,7 @@
 
 #include "VertexLayout.h"
 #include "NonCopyable.h"
+#include "Material.h"
 
 class GLShader : public NonCopyable {
 private:
@@ -44,21 +45,32 @@ public:
 
 
 
-class PhongShader : public GLProgram {
+class LightingShader : public GLProgram {
 private:
-	// Albedo | Ambient Light | Light Direction
-	GLuint uAlbedo, uAmbient, uLight, uLightColor;
+	// Ambient Light | Light Direction | Light Color
+	GLuint uAmbient, uLight, uLightColor;
 
 	// Camera
 	GLuint uModelViewMatrix, uProjectionMatrix, uNormalMatrix;
 
 public:
-	PhongShader();
-	void setAlbedo(const glm::vec3& albedo);
-	void setAmbient(const glm::vec3& ambient);
-	void setLight(const glm::vec3& light);
-	void setLightColor(const glm::vec3& lightColor);
-	void setModelView(glm::mat4 m);
-	void setProjection(glm::mat4 m);
-	void setNormalMatrix(glm::mat3 m);
+	LightingShader(const char* frag_file);
+	void setAmbient(const glm::vec3& ambient); // set ambient light
+	void setLight(const glm::vec3& light, glm::mat4 view=glm::mat4(1)); // set light position
+	void setLightColor(const glm::vec3& lightColor); // set light color
+
+	void setModelView(glm::mat4 m); // set modelViewMatrix and automatically set normalMatrix
+	void setProjection(glm::mat4 m); // set projectionMatrix
+	virtual void loadMaterial(const Material& material); // load uniforms from material
+};
+
+class PhongSolid : public LightingShader {
+private:
+	// Color
+	GLuint uColor;
+
+public:
+	PhongSolid();
+	void setColor(const glm::vec3& color);
+	virtual void loadMaterial(const Material& material);
 };

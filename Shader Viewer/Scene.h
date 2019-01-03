@@ -1,5 +1,7 @@
 #pragma once
 #include "RigidBodyTransform.h"
+#include "Material.h"
+#include "Geometry.h"
 
 class SceneObject {
 protected:
@@ -17,6 +19,16 @@ public:
 	glm::mat4 makeModelMatrix() const;
 };
 
+template<typename GeometryType>
 class DrawableObject : public SceneObject {
-	// TODO
+private:
+	Material material;
+	GeometryType* geometry;
+
+public:
+	DrawableObject() : SceneObject() {}
+	void setGeometry(GeometryType* geometry) { this->geometry = geometry; }
+	void setMaterial(const Material& material) { this->material = material; }
+	Material getMaterial() const { return material; }
+	GeometryType* getGeometry() const { return geometry; }
 };

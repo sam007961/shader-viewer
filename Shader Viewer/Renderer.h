@@ -19,13 +19,13 @@ public:
 	}
 
 	template<class GeometryType>
-	void draw(const GeometryType* target) const { // draw geometry
+	void draw(const GeometryType* target, GLenum mode=GL_TRIANGLES) const { // draw geometry
 		assert(program != nullptr);
 		assert((*program) > 0);
 
 		glUseProgram(*program);
 		glBindVertexArray(*target);
-		glDrawElements(GL_TRIANGLES, target->elementCount(), GL_UNSIGNED_INT, 0);
+		glDrawElements(mode, target->elementCount(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glUseProgram(0);
 	}

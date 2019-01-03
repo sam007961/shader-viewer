@@ -23,16 +23,22 @@ public:
 //
 //g_mouseClickDown = g_mouseLClickButton || g_mouseRClickButton || g_mouseMClickButton;
 
-class PhongShaderDemo: public Demo {
+class PhongSolidDemo : public Demo {
 private:
+	typedef Geometry<InterleavedLayout<VertexPN> > Geometry;
+	typedef DrawableObject<Geometry> DObject;
+
 	Renderer renderer;
+	Geometry geom_sphere, geom_plane;
 	Camera camera;
-	Geometry<InterleavedLayout<VertexPN> > sphere, plane;
-	PhongShader phong;
+	DObject sphere, floor, ceiling, back_wall, front_wall, left_wall, right_wall;
+	PhongSolid phong;
 	bool clicked;
 
+	void draw(const DObject& obj, glm::mat4 viewMatrix);
+
 public:
-	PhongShaderDemo();
+	PhongSolidDemo();
 	virtual void draw();
 	virtual void reshape(const int w, const int h);
 	virtual void mouse(const int button, const int state, const int x, const int y);

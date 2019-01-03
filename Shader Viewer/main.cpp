@@ -15,7 +15,7 @@ using glm::vec3;
 #include "Demo.h"
 
 // globals
-#define DEMO PhongShaderDemo
+#define DEMO PhongSolidDemo
 static Demo* g_demo;
 static int g_mouseClickX = 0;
 static int g_mouseClickY = 0;

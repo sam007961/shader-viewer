@@ -7,7 +7,7 @@
 Demo::Demo() {}
 
 // Phong shader demo
-PhongShaderDemo::PhongShaderDemo() : clicked(false) {
+PhongSolidDemo::PhongSolidDemo() : clicked(false) {
 	// renderer
 	renderer.setProgram(&phong);
 
@@ -15,142 +15,102 @@ PhongShaderDemo::PhongShaderDemo() : clicked(false) {
 	std::vector<VertexPN> vertices;
 	std::vector<unsigned int> indices;
 	buildUVSphere(1.0f, 24, 24, vertices, indices);
-	sphere.loadData(vertices);
-	sphere.loadIndices(indices);
+	geom_sphere.loadData(vertices);
+	geom_sphere.loadIndices(indices);
 
 	vertices.clear(); indices.clear();
 	buildPlane(4.0f, 4.0f, vertices, indices);
-	plane.loadData(vertices);
-	plane.loadIndices(indices);
+	geom_plane.loadData(vertices);
+	geom_plane.loadIndices(indices);
+
+	// materials
+	Material grey = { { 0.2f, 0.2f, 0.2f }, { 0.025f, 0.025f, 0.025f } };
+	Material purple = { { 0.5f, 0.0f, 0.5f }, { 0.025f, 0.025f, 0.025f } };
+	Material red = { { 1.0f, 0.1f, 0.1f }, { 0.025f, 0.025f, 0.025f } };
+	Material green = { { 0.1f, 1.0f, 0.1f }, { 0.025f, 0.025f, 0.025f } };
+
+	// drawables
+	sphere.setGeometry(&geom_sphere);
+	floor.setGeometry(&geom_plane);
+	ceiling.setGeometry(&geom_plane);
+	back_wall.setGeometry(&geom_plane);
+	front_wall.setGeometry(&geom_plane);
+	left_wall.setGeometry(&geom_plane);
+	right_wall.setGeometry(&geom_plane);
+
+	sphere.setMaterial(purple);
+	floor.setMaterial(grey);
+	ceiling.setMaterial(grey);
+	back_wall.setMaterial(grey);
+	front_wall.setMaterial(grey);
+	left_wall.setMaterial(red);
+	right_wall.setMaterial(green);
+
+	sphere.setPosition({ 0, 0, 0 });
+	floor.setPosition({ 0, -2, 0 });
+	ceiling.setPosition({ 0, 2, 0 });
+	back_wall.setPosition({ 0, 0, 2 });
+	front_wall.setPosition({ 0, 0, -2 });
+	left_wall.setPosition({ -2, 0, 0 });
+	right_wall.setPosition({ 2, 0, 0 });
+	
+	floor.rotate(-PI / 2, XAXIS);
+	ceiling.rotate(PI / 2, XAXIS);
+	back_wall.rotate(PI, XAXIS);
+	left_wall.rotate(PI / 2, YAXIS);
+	right_wall.rotate(-PI / 2, YAXIS);
 
 	// camera
 	camera.setPosition(glm::vec3(0, 0, 4));
 	camera.lookAt(glm::vec3(0, 0, 0));
 }
 
-#define MVFLOOR glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -2.0f, 0.0f)) \
-* glm::rotate(glm::mat4(1.0f), -PI / 2, glm::vec3(1.0f, 0.0f, 0.0f))
-
-#define MVFRONTWALL glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f)) \
-* glm::rotate(glm::mat4(1.0f), 0.0f / 2, glm::vec3(1.0f, 0.0f, 0.0f))
-
-#define MVRIGHTWALL glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)) \
-* glm::rotate(glm::mat4(1.0f), -PI / 2, glm::vec3(0.0f, 1.0f, 0.0f))
-
-#define MVLEFTWALL glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)) \
-* glm::rotate(glm::mat4(1.0f), PI / 2, glm::vec3(0.0f, 1.0f, 0.0f))
-
-#define MVBACKWALL glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f)) \
-* glm::rotate(glm::mat4(1.0f), PI, glm::vec3(1.0f, 0.0f, 0.0f))
-
-#define MVCEILING glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f)) \
-* glm::rotate(glm::mat4(1.0f), PI / 2, glm::vec3(1.0f, 0.0f, 0.0f))
-
-void PhongShaderDemo::draw() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear framebuffer
-
-	// sphere
-	glm::mat4 modelMatrix(1); // model
-	glm::mat4 viewMatrix = camera.makeViewMatrix(); // view
-	glm::mat4 modelViewMatrix = viewMatrix * modelMatrix; // model view
-	glm::mat3 normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
-
+void PhongSolidDemo::draw(const DObject& obj, glm::mat4 viewMatrix) {
+	glm::mat4 modelViewMatrix = viewMatrix * obj.makeModelMatrix(); // model view
 	phong.setModelView(modelViewMatrix);
-	phong.setProjection(camera.makeProjMatrix());
-	phong.setNormalMatrix(normalMatrix);
-	phong.setAlbedo({ 0.5f, 0.0f, 0.5f });
-	phong.setAmbient({ 0.05f, 0.05f, 0.05f });
-	phong.setLight(glm::vec3(modelViewMatrix * glm::vec4(-1.8, 1.8, 1.8, 1)));
-	phong.setLightColor(glm::vec3(1, 1, 1));
-
-	renderer.draw(&sphere); // render
-
-	// floor
-	modelMatrix = MVFLOOR; // model
-	modelViewMatrix = viewMatrix * modelMatrix; // model view
-	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
-	
-	phong.setModelView(viewMatrix * modelMatrix);
-	phong.setNormalMatrix(normalMatrix);
-	phong.setAlbedo({ 0.2f, 0.2f, 0.2f });
-
-	renderer.draw(&plane); // render
-
-	// front wall
-	modelMatrix = MVFRONTWALL; // model
-	modelViewMatrix = viewMatrix * modelMatrix; // model view
-	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
-
-	phong.setModelView(viewMatrix * modelMatrix);
-	phong.setNormalMatrix(normalMatrix);
-	phong.setAlbedo({ 0.2f, 0.2f, 0.2f });
-
-	renderer.draw(&plane); // render
-
-	// right wall
-	modelMatrix = MVRIGHTWALL; // model
-	modelViewMatrix = viewMatrix * modelMatrix; // model view
-	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
-
-	phong.setModelView(viewMatrix * modelMatrix);
-	phong.setNormalMatrix(normalMatrix);
-	phong.setAlbedo({ 0.1f, 1.0f, 0.1f });
-
-	renderer.draw(&plane); // render
-
-	// left wall
-	modelMatrix = MVLEFTWALL; // model
-	modelViewMatrix = viewMatrix * modelMatrix; // model view
-	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
-
-	phong.setModelView(viewMatrix * modelMatrix);
-	phong.setNormalMatrix(normalMatrix);
-	phong.setAlbedo({ 1.0f, 0.1f, 0.1f });
-
-	renderer.draw(&plane); // render
-
-	// back wall
-	modelMatrix = MVBACKWALL; // model
-	modelViewMatrix = viewMatrix * modelMatrix; // model view
-	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
-
-	phong.setModelView(viewMatrix * modelMatrix);
-	phong.setNormalMatrix(normalMatrix);
-	phong.setAlbedo({ 0.2f, 0.2f, 0.2f });
-
-	renderer.draw(&plane); // render
-
-	// ceiling
-	modelMatrix = MVCEILING; // model
-	modelViewMatrix = viewMatrix * modelMatrix; // model view
-	normalMatrix = glm::inverse(glm::transpose(glm::mat3(modelViewMatrix))); // normal
-
-	phong.setModelView(viewMatrix * modelMatrix);
-	phong.setNormalMatrix(normalMatrix);
-	phong.setAlbedo({ 0.2f, 0.2f, 0.2f });
-
-	renderer.draw(&plane); // render
+	phong.loadMaterial(obj.getMaterial());
+	renderer.draw(obj.getGeometry()); // render
 }
 
-void PhongShaderDemo::reshape(const int w, const int h) {
+void PhongSolidDemo::draw() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear framebuffer
+
+	glm::mat4 viewMatrix = camera.makeViewMatrix(); // view
+	glm::mat4 projectionMatrix = camera.makeProjMatrix();
+	phong.setProjection(projectionMatrix);
+	phong.setLight(glm::vec3(-1.8, 1.8, 1.8), viewMatrix);
+	phong.setLightColor(glm::vec3(1, 1, 1));
+	
+	//phong.loadMaterial(sphere.getMaterial());
+	//phong.setColor({ 1.0, 0, 0 });
+	//phong.setAmbient({ 0, 0, 0 });
+
+	draw(sphere, viewMatrix);
+	draw(floor, viewMatrix);
+	draw(ceiling, viewMatrix);
+	draw(back_wall, viewMatrix);
+	draw(front_wall, viewMatrix);
+	draw(left_wall, viewMatrix);
+	draw(right_wall, viewMatrix);
+}
+
+void PhongSolidDemo::reshape(const int w, const int h) {
 	glViewport(0, 0, w, h);
 	camera.setProjection(PI / 4.0f, w * 1.0f / h, 0.01f, 100.0f);
 }
 
-void PhongShaderDemo::mouse(const int button, const int state, const int x, const int y) {
+void PhongSolidDemo::mouse(const int button, const int state, const int x, const int y) {
 	clicked |= (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN);
 	clicked &= !(button == GLUT_LEFT_BUTTON && state == GLUT_UP);
 }
 
-void PhongShaderDemo::motion(const int x, const int y, const int dx, const int dy) {
+void PhongSolidDemo::motion(const int x, const int y, const int dx, const int dy) {
 	const glm::vec3 yaxis(0, 1, 0);
 	const glm::vec3 xaxis(1, 0, 0);
 	if (clicked) {
 		
 		camera.rotate(-dx * 5e-2f, glm::vec3(0, 0, 0), yaxis);
 		camera.orbit( -dy * 5e-2f, glm::vec3(0, 0, 0), xaxis);
-		//camera.rotate(dy * 1e-3f, xaxis);
-		//camera.rotate(dx * 1e-3f, yaxis);
 		glutPostRedisplay();
 	}
 }

@@ -19,16 +19,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Shaders\solid.fshader">
+    <None Include="Shaders\lighting.vshader">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\phong.fshader">
+    <None Include="Shaders\phong_solid.fshader">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\pick.fshader">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Shaders\basic.vshader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -59,6 +55,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Demo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
