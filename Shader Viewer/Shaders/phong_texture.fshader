@@ -2,9 +2,10 @@
 
 in vec3 vPosition;
 in vec3 vNormal;
+in vec2 vTexCoord;
 out vec4 fragColor;
 
-uniform vec3 uColor;
+uniform sampler2D uTexture;
 uniform vec3 uAmbient;
 uniform vec3 uLight;
 uniform vec3 uLightColor;   
@@ -21,6 +22,6 @@ void main() {
     vec3 diffuse = max(dot(toLight, normal), 0.0) * uLightColor;
     vec3 specular = pow(max(dot(toCamera, reflected), 0.0), 32) * uLightColor;
 
-    vec3 color = (diffuse + specular + uAmbient) * uColor;
-    fragColor = vec4(color, 1.0);
+    vec3 intensity = diffuse + specular + uAmbient;
+    fragColor = vec4(intensity, 1.0) * texture(uTexture, vTexCoord);
 }

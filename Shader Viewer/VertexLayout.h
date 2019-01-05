@@ -101,7 +101,7 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, handle);
 		glBufferData(GL_ARRAY_BUFFER, _size, &data[0], GL_STATIC_DRAW);
 	}
-	~GLBuffer() { glDeleteBuffers(1, &handle); }
+	virtual ~GLBuffer() { glDeleteBuffers(1, &handle); }
 
 	size_t size() const { return _size; }
 };
@@ -121,7 +121,7 @@ public:
 class VertexLayout : public GLObject {
 public:
 	VertexLayout() { glGenVertexArrays(1, &handle); }
-	~VertexLayout() { glDeleteVertexArrays(1, &handle); }
+	virtual ~VertexLayout() { glDeleteVertexArrays(1, &handle); }
 };
 
 // InterleavedLayout

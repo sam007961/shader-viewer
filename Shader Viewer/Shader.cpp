@@ -1,8 +1,8 @@
-#include "Shader.h"
 #include <vector>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+#include "Shader.h"
 // GLSHADER ///////////////////////////////////////////////////////////////////////////////////
 GLShader::GLShader(GLenum shaderType) : GLObject(glCreateShader(shaderType)) {};
 
@@ -87,6 +87,13 @@ void GLProgram::setUniform(GLuint unif, glm::vec3 v) {
 	glUseProgram(0);
 }
 
+template<>
+void GLProgram::setUniform(GLuint unif, int i) {
+	glUseProgram(handle);
+	glUniform1i(unif, i);
+	glUseProgram(0);
+}
+
 GLProgram::~GLProgram() { glDeleteProgram(handle); }
 
 // SHADER PROGRAMS ////////////////////////////////////////////////////////////////////////////
@@ -95,7 +102,7 @@ LightingShader::LightingShader(const char* frag_file) : GLProgram() {
 	// compile and link shaders
 	GLShader* vert = GLShader::VertexShader();
 	GLShader* frag = GLShader::FragmentShader();
-	vert->compile(std::ifstream("./shaders/lighting.vshader"));
+	vert->compile(std::ifstream("./Shaders/lighting.vshader"));
 	frag->compile(std::ifstream(frag_file));
 	link(*vert, *frag);
 	delete vert; delete frag;
@@ -137,7 +144,7 @@ void LightingShader::loadMaterial(const Material& material) {
 	setAmbient(material.ambient);
 }
 
-PhongSolid::PhongSolid() : LightingShader("./shaders/phong_solid.fshader") {
+PhongSolid::PhongSolid() : LightingShader("./Shaders/phong_solid.fshader") {
 	uColor = getUniformLocation("uColor");
 }
 
@@ -148,4 +155,19 @@ void PhongSolid::setColor(const glm::vec3& color) {
 void PhongSolid::loadMaterial(const Material& material) {
 	LightingShader::loadMaterial(material);
 	setColor(material.color);
+}
+
+PhongTexture::PhongTexture() : LightingShader("./Shaders/phong_texture.fshader") {
+	uTexture = getUniformLocation("uTexture");
+}
+
+void PhongTexture::setTexture(GLuint texture) {
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	setUniform(uTexture, 0);
+}
+
+void PhongTexture::loadMaterial(const Material& material) {
+	LightingShader::loadMaterial(material);
+	setTexture(material.textures[0]);
 }

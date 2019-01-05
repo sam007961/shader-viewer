@@ -21,10 +21,13 @@ RoomDemo::RoomDemo() : clicked(false) {
 	geom_plane.loadIndices(indices);
 
 	// materials
-	Material grey = { { 0.2f, 0.2f, 0.2f },{ 0.05f, 0.05f, 0.05f } };
-	Material purple = { { 0.5f, 0.0f, 0.5f },{ 0.05f, 0.05f, 0.05f } };
-	Material red = { { 1.0f, 0.1f, 0.1f },{ 0.05f, 0.05f, 0.05f } };
-	Material green = { { 0.1f, 1.0f, 0.1f },{ 0.05f, 0.05f, 0.05f } };
+	Material grey = { { 0.2f, 0.2f, 0.2f }, { 0.05f, 0.05f, 0.05f } };
+	Material purple = { { 0.5f, 0.0f, 0.5f }, { 0.05f, 0.05f, 0.05f } };
+	Material red = { { 1.0f, 0.1f, 0.1f }, { 0.05f, 0.05f, 0.05f } };
+	Material green = { { 0.1f, 1.0f, 0.1f }, { 0.05f, 0.05f, 0.05f } };
+
+	// light
+	light = Light(-1.8, 1.8, 1.8);
 
 	// drawables
 	sphere.setGeometry(&geom_sphere);
@@ -64,28 +67,37 @@ RoomDemo::RoomDemo() : clicked(false) {
 
 RoomDemo::~RoomDemo() { delete shader; }
 
-void RoomDemo::draw(const DObject& obj, glm::mat4 viewMatrix) {
+void RoomDemo::clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+
+void RoomDemo::setProjection() {
+	glm::mat4 projectionMatrix = camera.makeProjMatrix();
+	shader->setProjection(projectionMatrix);
+}
+
+void RoomDemo::draw(const DObject& obj) {
 	renderer.setProgram(shader);
+	glm::mat4 viewMatrix = camera.makeViewMatrix(); // view
 	glm::mat4 modelViewMatrix = viewMatrix * obj.makeModelMatrix(); // model view
+	shader->setLight(light, viewMatrix);
 	shader->setModelView(modelViewMatrix);
-	shader->loadMaterial(obj.getMaterial());
-	renderer.draw(obj.getGeometry()); // render
+	shader->loadMaterial(obj.material());
+	renderer.draw(obj.geometry()); // render
+}
+
+void RoomDemo::drawEverything() {
+	draw(sphere);
+	draw(floor);
+	draw(ceiling);
+	draw(back_wall);
+	draw(front_wall);
+	draw(left_wall);
+	draw(right_wall);
 }
 
 void RoomDemo::draw() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear framebuffer
-
-	glm::mat4 viewMatrix = camera.makeViewMatrix(); // view
-	glm::mat4 projectionMatrix = camera.makeProjMatrix();
-	shader->setProjection(projectionMatrix);
-
-	draw(sphere, viewMatrix);
-	draw(floor, viewMatrix);
-	draw(ceiling, viewMatrix);
-	draw(back_wall, viewMatrix);
-	draw(front_wall, viewMatrix);
-	draw(left_wall, viewMatrix);
-	draw(right_wall, viewMatrix);
+	clear();
+	setProjection();
+	drawEverything();
 }
 
 void RoomDemo::reshape(const int w, const int h) {
@@ -109,19 +121,46 @@ void RoomDemo::motion(const int x, const int y, const int dx, const int dy) {
 	}
 }
 
-// Phong shader demo
+// Solid Phong shader demo
 PhongSolidDemo::PhongSolidDemo() : RoomDemo() {
 	// shader
 	shader = new PhongSolid();
-}
-
-
-
-void PhongSolidDemo::draw() {
-	shader->setLight(glm::vec3(-1.8, 1.8, 1.8), camera.makeViewMatrix());
 	shader->setLightColor(glm::vec3(1, 1, 1));
-	RoomDemo::draw();
 }
 
 
+// Texuture Phong shader demo
+PhongTextureDemo::PhongTextureDemo() : RoomDemo() {
+	// shader
+	shader = new PhongTexture();
+	shader->setLightColor(glm::vec3(1, 1, 1));
+	
+	// textures
+	tex_marble.loadData("./Textures/marble.png");
+	tex_tiles.loadData("./Textures/tiles.jpg");
+	tex_concrete.loadData("./Textures/concrete.png");
+	tex_mosaic.loadData("./Textures/mosaic.jpg");
 
+	// materials
+	Material marble, tiles, concrete, mosaic;
+
+	marble.ambient = { 0.05, 0.05, 0.05 };
+	marble.textures[0] = tex_marble;
+
+	tiles.ambient = { 0.05, 0.05, 0.05 };
+	tiles.textures[0] = tex_tiles;
+
+	concrete.ambient = { 0.05, 0.05, 0.05 };
+	concrete.textures[0] = tex_concrete;
+
+	mosaic.ambient = { 0.05, 0.05, 0.05 };
+	mosaic.textures[0] = tex_mosaic;
+
+	sphere.setMaterial(marble);
+	floor.setMaterial(tiles);
+	ceiling.setMaterial(concrete);
+	back_wall.setMaterial(mosaic);
+	front_wall.setMaterial(mosaic);
+	left_wall.setMaterial(mosaic);
+	right_wall.setMaterial(mosaic);
+}

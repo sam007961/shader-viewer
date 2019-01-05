@@ -15,4 +15,5 @@ private:
 public:
 
 	operator GLuint() const { return handle; }
+	virtual ~GLObject() {}
 };

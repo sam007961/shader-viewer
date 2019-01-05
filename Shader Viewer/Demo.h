@@ -27,21 +27,26 @@ class RoomDemo : public Demo {
 protected:
 	typedef Geometry<InterleavedLayout<VertexPNT> > Geometry;
 	typedef DrawableObject<Geometry> DObject;
+	typedef glm::vec3 Light;
 
 	Geometry geom_sphere, geom_plane;
 	Camera camera;
 	DObject sphere, floor, ceiling, back_wall, front_wall, left_wall, right_wall;
+	Light light;
 
 	Renderer renderer;
 	LightingShader* shader;
 
 	bool clicked;
 
-	void draw(const DObject& obj, glm::mat4 viewMatrix);
+	void clear(); // clear frame buffer
+	void setProjection(); // set camera projection
+	void draw(const DObject& obj); // draw single object
+	void drawEverything(); // draw entire room
 	
 public:
 	RoomDemo();
-	~RoomDemo();
+	virtual ~RoomDemo();
 	virtual void draw();
 	virtual void reshape(const int w, const int h);
 	virtual void mouse(const int button, const int state, const int x, const int y);
@@ -51,22 +56,14 @@ public:
 class PhongSolidDemo : public RoomDemo {
 public:
 	PhongSolidDemo();
-	virtual void draw();
 };
 
-//class PhongShaderDemo : public Demo {
-//private:
-//	Renderer renderer;
-//	Camera camera;
-//	Geometry<InterleavedLayout<VertexPN> > sphere, plane;
-//	PhongShader phong;
-//	bool clicked;
-//
-//public:
-//	PhongShaderDemo();
-//	virtual void draw();
-//	virtual void reshape(const int w, const int h);
-//	virtual void mouse(const int button, const int state, const int x, const int y);
-//	virtual void motion(const int x, const int y, const int dx, const int dy);
-//
-//};
+class PhongTextureDemo : public RoomDemo {
+private:
+	typedef GLTexture2D Texture;
+
+	Texture tex_marble, tex_tiles, tex_concrete, tex_mosaic;
+
+public:
+	PhongTextureDemo();
+};

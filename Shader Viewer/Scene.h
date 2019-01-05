@@ -22,13 +22,13 @@ public:
 template<typename GeometryType>
 class DrawableObject : public SceneObject {
 private:
-	Material material;
-	GeometryType* geometry;
+	Material _material;
+	GeometryType* _geometry;
 
 public:
 	DrawableObject() : SceneObject() {}
-	void setGeometry(GeometryType* geometry) { this->geometry = geometry; }
-	void setMaterial(const Material& material) { this->material = material; }
-	Material getMaterial() const { return material; }
-	GeometryType* getGeometry() const { return geometry; }
+	void setGeometry(GeometryType* geometry) { _geometry = geometry; }
+	void setMaterial(const Material& material) { _material = material; }
+	Material material() const { return _material; }
+	GeometryType* geometry() const { return _geometry; }
 };

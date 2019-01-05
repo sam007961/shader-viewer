@@ -6,6 +6,7 @@
 #include "VertexLayout.h"
 #include "GLObject.h"
 #include "Material.h"
+#include "Texture.h"
 
 class GLShader : public GLObject {
 private:
@@ -14,7 +15,7 @@ private:
 public:
 	void compile(const char* source);
 	void compile(std::ifstream& source);
-	~GLShader();
+	virtual ~GLShader();
 
 	// shader factory
 	static GLShader* VertexShader();
@@ -36,8 +37,6 @@ public:
 	GLProgram();
 	virtual ~GLProgram();
 };
-
-
 
 class LightingShader : public GLProgram {
 private:
@@ -71,9 +70,10 @@ public:
 
 class PhongTexture : public LightingShader {
 private:
-	GLuint uTexutre;
+	GLuint uTexture;
 
 public:
 	PhongTexture();
-	//void setTexture(
+	void setTexture(GLuint texture);
+	virtual void loadMaterial(const Material& material);
 };
