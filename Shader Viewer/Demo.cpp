@@ -9,7 +9,7 @@ Demo::Demo() {}
 // Room demo class
 RoomDemo::RoomDemo() : clicked(false) {
 	// geometry
-	std::vector<VertexPN> vertices;
+	std::vector<VertexPNT> vertices;
 	std::vector<unsigned int> indices;
 	buildUVSphere(1.0f, 24, 24, vertices, indices);
 	geom_sphere.loadData(vertices);

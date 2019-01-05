@@ -13,14 +13,14 @@
 struct Vertex {
 	glm::vec3 position; // position
 	glm::vec3 normal;   // normal
-	glm::vec2 tex;      // uv-coordiantes
+	glm::vec2 texture;  // uv-coordiantes
 
 	// construct given all data
 	Vertex( 
 		float x, float y, float z,
 		float nx, float ny, float nz,
 		float tu, float tv)
-		: position(x, y, z), normal(nx, ny, nz), tex(tu, tv) {}
+		: position(x, y, z), normal(nx, ny, nz), texture(tu, tv) {}
 };
 
 /* Vertex subtypes
@@ -60,6 +60,31 @@ struct VertexPN {
 	VertexPN(Vertex v) {
 		position = v.position;
 		normal = v.normal;
+	}
+};
+
+struct VertexPNT {
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 texture;
+
+	static void enableAttributes(unsigned int loc = 0) {
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPNT), (GLvoid*)offsetof(VertexPNT, position));
+		glEnableVertexAttribArray(loc++);
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPNT), (GLvoid*)offsetof(VertexPNT, normal));
+		glEnableVertexAttribArray(loc++);
+		glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPNT), (GLvoid*)offsetof(VertexPNT, texture));
+		glEnableVertexAttribArray(loc++);
+	}
+
+	VertexPNT() {}
+	VertexPNT(Vertex v) {
+		position = v.position;
+		normal = v.normal;
+		texture = v.texture;
 	}
 };
 

@@ -1,5 +1,6 @@
 #pragma once
+#include "GLObject.h"
 
-class Texture {
+class GLTexture : public GLObject {
 
 };

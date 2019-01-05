@@ -25,7 +25,7 @@ public:
 
 class RoomDemo : public Demo {
 protected:
-	typedef Geometry<InterleavedLayout<VertexPN> > Geometry;
+	typedef Geometry<InterleavedLayout<VertexPNT> > Geometry;
 	typedef DrawableObject<Geometry> DObject;
 
 	Geometry geom_sphere, geom_plane;
