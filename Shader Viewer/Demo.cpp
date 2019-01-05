@@ -136,10 +136,10 @@ PhongTextureDemo::PhongTextureDemo() : RoomDemo() {
 	shader->setLightColor(glm::vec3(1, 1, 1));
 	
 	// textures
-	tex_marble.loadData("./Textures/marble.png");
-	tex_tiles.loadData("./Textures/tiles.jpg");
-	tex_concrete.loadData("./Textures/concrete.png");
-	tex_mosaic.loadData("./Textures/mosaic.jpg");
+	tex_marble.loadData(GL_RGB, "./Textures/marble.png");
+	tex_tiles.loadData(GL_RGB, "./Textures/tiles.jpg");
+	tex_concrete.loadData(GL_RGB, "./Textures/concrete.png");
+	tex_mosaic.loadData(GL_RGB, "./Textures/mosaic.jpg");
 
 	// materials
 	Material marble, tiles, concrete, mosaic;
