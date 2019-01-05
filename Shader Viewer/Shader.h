@@ -4,18 +4,16 @@
 #include <glm/common.hpp>
 
 #include "VertexLayout.h"
-#include "NonCopyable.h"
+#include "GLObject.h"
 #include "Material.h"
 
-class GLShader : public NonCopyable {
+class GLShader : public GLObject {
 private:
-	GLuint handle; // Shader handle
 	GLShader(GLenum shaderType);
 
 public:
 	void compile(const char* source);
 	void compile(std::ifstream& source);
-	operator GLuint() const; // cast to GLuint
 	~GLShader();
 
 	// shader factory
@@ -24,10 +22,7 @@ public:
 };
 
 // base program class
-class GLProgram : public NonCopyable {
-private:
-	GLuint handle;
-
+class GLProgram : public GLObject {
 protected:
 	// helpers for constructing shader
 	void link(const GLShader& vshader, const GLShader& fshader);
@@ -39,7 +34,6 @@ protected:
 
 public:
 	GLProgram();
-	operator GLuint() const; // cast to GLuint
 	virtual ~GLProgram();
 };
 

@@ -4,11 +4,8 @@
 #include <iostream>
 
 // GLSHADER ///////////////////////////////////////////////////////////////////////////////////
-GLShader::GLShader(GLenum shaderType) : handle(glCreateShader(shaderType)) {};
+GLShader::GLShader(GLenum shaderType) : GLObject(glCreateShader(shaderType)) {};
 
-GLShader::operator GLuint() const {
-	return handle;
-}
 
 GLShader::~GLShader() {
 	glDeleteShader(handle);
@@ -46,7 +43,7 @@ GLShader* GLShader::VertexShader() { return  new GLShader(GL_VERTEX_SHADER); }
 GLShader* GLShader::FragmentShader() { return new GLShader(GL_FRAGMENT_SHADER); }
 
 // GLPROGRAM //////////////////////////////////////////////////////////////////////////////////
-GLProgram::GLProgram() : handle(glCreateProgram()) {}
+GLProgram::GLProgram() : GLObject(glCreateProgram()) {}
 
 void GLProgram::link(const GLShader& vshader, const GLShader& fshader) {
 	GLint linked = 0; // Linked flag
@@ -89,7 +86,6 @@ void GLProgram::setUniform(GLuint unif, glm::vec3 v) {
 	glUniform3f(unif, v[0], v[1], v[2]);
 	glUseProgram(0);
 }
-GLProgram::operator GLuint() const { return handle; }
 
 GLProgram::~GLProgram() { glDeleteProgram(handle); }
 

@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <cmath>
 
-#include "NonCopyable.h"
+#include "GLObject.h"
 
 // Vertex Types
 // Generic Vertex structure
@@ -65,9 +65,8 @@ struct VertexPN {
 
 // Base Buffer Class
 template<typename DataType>
-class GLBuffer {
+class GLBuffer : public GLObject {
 private:
-	GLuint handle;
 	size_t _size;
 
 public:
@@ -80,7 +79,6 @@ public:
 	~GLBuffer() { glDeleteBuffers(1, &handle); }
 
 	size_t size() const { return _size; }
-	operator GLuint() const { return handle; } // cast to GLuint
 };
 
 // Vertex Buffer Class
@@ -95,14 +93,10 @@ public:
 };
 
 // Base Vertex Layout Class
-class VertexLayout : public NonCopyable {
-private:
-	GLuint handle; // vertex array object handle
-
+class VertexLayout : public GLObject {
 public:
 	VertexLayout() { glGenVertexArrays(1, &handle); }
 	~VertexLayout() { glDeleteVertexArrays(1, &handle); }
-	operator GLuint() const { return handle; } // cast to GLuint
 };
 
 // InterleavedLayout

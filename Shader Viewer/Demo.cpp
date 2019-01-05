@@ -21,10 +21,10 @@ RoomDemo::RoomDemo() : clicked(false) {
 	geom_plane.loadIndices(indices);
 
 	// materials
-	Material grey = { { 0.2f, 0.2f, 0.2f },{ 0.025f, 0.025f, 0.025f } };
-	Material purple = { { 0.5f, 0.0f, 0.5f },{ 0.025f, 0.025f, 0.025f } };
-	Material red = { { 1.0f, 0.1f, 0.1f },{ 0.025f, 0.025f, 0.025f } };
-	Material green = { { 0.1f, 1.0f, 0.1f },{ 0.025f, 0.025f, 0.025f } };
+	Material grey = { { 0.2f, 0.2f, 0.2f },{ 0.05f, 0.05f, 0.05f } };
+	Material purple = { { 0.5f, 0.0f, 0.5f },{ 0.05f, 0.05f, 0.05f } };
+	Material red = { { 1.0f, 0.1f, 0.1f },{ 0.05f, 0.05f, 0.05f } };
+	Material green = { { 0.1f, 1.0f, 0.1f },{ 0.05f, 0.05f, 0.05f } };
 
 	// drawables
 	sphere.setGeometry(&geom_sphere);
@@ -118,7 +118,6 @@ PhongSolidDemo::PhongSolidDemo() : RoomDemo() {
 
 
 void PhongSolidDemo::draw() {
-	
 	shader->setLight(glm::vec3(-1.8, 1.8, 1.8), camera.makeViewMatrix());
 	shader->setLightColor(glm::vec3(1, 1, 1));
 	RoomDemo::draw();
