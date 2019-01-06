@@ -81,7 +81,7 @@ void RoomDemo::draw(const DObject& obj) {
 	shader->setLight(light, viewMatrix);
 	shader->setModelView(modelViewMatrix);
 	shader->loadMaterial(obj.material());
-	renderer.draw(obj.geometry()); // render
+	renderer.draw(*obj.geometry()); // render
 }
 
 void RoomDemo::drawEverything() {

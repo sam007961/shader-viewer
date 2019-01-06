@@ -97,9 +97,8 @@ void GLProgram::setUniform(GLuint unif, int i) {
 GLProgram::~GLProgram() { glDeleteProgram(handle); }
 
 // SHADER PROGRAMS ////////////////////////////////////////////////////////////////////////////
-LightingShader::LightingShader(const char* frag_file) : GLProgram() {
-
-	// compile and link shaders
+// Camera Shader
+CameraShader::CameraShader(const char* vert_file, const char* frag_file) {
 	GLShader* vert = GLShader::VertexShader();
 	GLShader* frag = GLShader::FragmentShader();
 	vert->compile(std::ifstream("./Shaders/lighting.vshader"));
@@ -107,15 +106,29 @@ LightingShader::LightingShader(const char* frag_file) : GLProgram() {
 	link(*vert, *frag);
 	delete vert; delete frag;
 
-	// get uniforms
-	uAmbient = getUniformLocation("uAmbient");
-	uLight = getUniformLocation("uLight");
-	uLightColor = getUniformLocation("uLightColor");
-
 	// get camera uniforms
 	uModelViewMatrix = getUniformLocation("uModelViewMatrix");
 	uProjectionMatrix = getUniformLocation("uProjectionMatrix");
 	uNormalMatrix = getUniformLocation("uNormalMatrix");
+}
+
+void CameraShader::setModelView(glm::mat4 m) {
+	setUniform(uModelViewMatrix, m);
+	glm::mat3 normalMatrix = glm::inverse(glm::transpose(glm::mat3(m)));
+	setUniform(uNormalMatrix, normalMatrix);
+}
+
+void CameraShader::setProjection(glm::mat4 m) {
+	setUniform(uProjectionMatrix, m);
+}
+
+// Lighting Shader
+LightingShader::LightingShader(const char* frag_file) 
+	: CameraShader("./Shaders/lighting.vshader", frag_file) {
+	// get uniforms
+	uAmbient = getUniformLocation("uAmbient");
+	uLight = getUniformLocation("uLight");
+	uLightColor = getUniformLocation("uLightColor");
 }
 
 void LightingShader::setAmbient(const glm::vec3& ambient) {
@@ -130,20 +143,11 @@ void LightingShader::setLightColor(const glm::vec3& lightColor) {
 	setUniform(uLightColor, lightColor);
 }
 
-void LightingShader::setModelView(glm::mat4 m) {
-	setUniform(uModelViewMatrix, m);
-	glm::mat3 normalMatrix = glm::inverse(glm::transpose(glm::mat3(m)));
-	setUniform(uNormalMatrix, normalMatrix);
-}
-
-void LightingShader::setProjection(glm::mat4 m) {
-	setUniform(uProjectionMatrix, m);
-}
-
 void LightingShader::loadMaterial(const Material& material) {
 	setAmbient(material.ambient);
 }
 
+// Solid Phong Shader
 PhongSolid::PhongSolid() : LightingShader("./Shaders/phong_solid.fshader") {
 	uColor = getUniformLocation("uColor");
 }
@@ -157,6 +161,7 @@ void PhongSolid::loadMaterial(const Material& material) {
 	setColor(material.color);
 }
 
+// Texture Phong Shader
 PhongTexture::PhongTexture() : LightingShader("./Shaders/phong_texture.fshader") {
 	uTexture = getUniformLocation("uTexture");
 	uSpecularMap = getUniformLocation("uSpecularMap");

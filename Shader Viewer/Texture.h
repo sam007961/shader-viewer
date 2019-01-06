@@ -3,6 +3,10 @@
 
 // base texture class
 class GLTexture : public GLObject {
+private:
+	GLuint fbo; // frame buffer object
+	bool bound; // to check if bound to frame buffer
+
 protected:
 	typedef unsigned char byte;
 	virtual void setup(GLuint format, byte* data, int width, int height, int nChannels) = 0;

@@ -38,22 +38,27 @@ public:
 	virtual ~GLProgram();
 };
 
-class LightingShader : public GLProgram {
+class CameraShader : public GLProgram {
+private:
+	// Camera
+	GLuint uModelViewMatrix, uProjectionMatrix, uNormalMatrix;
+
+public:
+	CameraShader(const char* vert_file, const char* frag_file);
+	void setModelView(glm::mat4 m); // set modelViewMatrix and automatically set normalMatrix
+	void setProjection(glm::mat4 m); // set projectionMatrix
+};
+
+class LightingShader : public CameraShader {
 private:
 	// Ambient Light | Light Direction | Light Color
 	GLuint uAmbient, uLight, uLightColor;
-
-	// Camera
-	GLuint uModelViewMatrix, uProjectionMatrix, uNormalMatrix;
 
 public:
 	LightingShader(const char* frag_file);
 	void setAmbient(const glm::vec3& ambient); // set ambient light
 	void setLight(const glm::vec3& light, glm::mat4 view=glm::mat4(1)); // set light position
 	void setLightColor(const glm::vec3& lightColor); // set light color
-
-	void setModelView(glm::mat4 m); // set modelViewMatrix and automatically set normalMatrix
-	void setProjection(glm::mat4 m); // set projectionMatrix
 	virtual void loadMaterial(const Material& material); // load uniforms from material
 };
 
@@ -81,3 +86,5 @@ public:
 	void setNormalMap(GLuint texture);
 	virtual void loadMaterial(const Material& material);
 };
+
+//class DepthShader :

@@ -16,7 +16,7 @@ out vec2 vTexCoord; // texture coordinates
 out mat3 vTBN; // tangent-bitangent-normal matrix
 
 
-void main(){
+void main() {
     // normal, tangent, bitangent
     vec3 T = normalize(vec3(uModelViewMatrix * vec4(aTangent, 0.0)));
     vec3 B = normalize(vec3(uModelViewMatrix * vec4(aBitangent, 0.0)));
