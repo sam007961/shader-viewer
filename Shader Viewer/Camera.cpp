@@ -17,8 +17,14 @@ void Camera::lookAt(glm::vec3 at) {
 	rbt.rotation = glm::normalize(glm::quat(1 + dot, glm::cross(zaxis, forward))); // halfway quat
 }
 
-void Camera::setProjection(float yfov, float aspect, float znear, float zfar) {
+void Camera::lookAt(float x, float y, float z) { lookAt(glm::vec3(x, y, z)); }
+
+void Camera::perspective(float yfov, float aspect, float znear, float zfar) {
 	projMatrix = glm::perspective(yfov, aspect, znear, zfar);
+}
+
+void Camera::orthogonal(float left, float right, float bottom, float top, float znear, float zfar) {
+	projMatrix = glm::ortho(left, right, bottom, top, znear, zfar);
 }
 
 glm::mat4 Camera::makeViewMatrix() const {

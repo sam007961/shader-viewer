@@ -27,7 +27,7 @@ RoomDemo::RoomDemo() : clicked(false) {
 	Material green = { { 0.1f, 1.0f, 0.1f }, { 0.05f, 0.05f, 0.05f } };
 
 	// light
-	light = Light(-1.8, 1.8, 1.5);
+	light = PointLight(-1.8f, 1.8f, 1.5f);
 
 	// drawables
 	sphere.setGeometry(&geom_sphere);
@@ -101,8 +101,9 @@ void RoomDemo::draw() {
 }
 
 void RoomDemo::reshape(const int w, const int h) {
+	width = w; height = h;
 	glViewport(0, 0, w, h);
-	camera.setProjection(PI / 4.0f, w * 1.0f / h, 0.01f, 100.0f);
+	camera.perspective(PI / 4.0f, w * 1.0f / h, 0.01f, 100.0f);
 }
 
 void RoomDemo::mouse(const int button, const int state, const int x, const int y) {
@@ -111,12 +112,9 @@ void RoomDemo::mouse(const int button, const int state, const int x, const int y
 }
 
 void RoomDemo::motion(const int x, const int y, const int dx, const int dy) {
-	const glm::vec3 yaxis(0, 1, 0);
-	const glm::vec3 xaxis(1, 0, 0);
 	if (clicked) {
-
-		camera.rotate(-dx * 5e-2f, glm::vec3(0, 0, 0), yaxis);
-		camera.orbit(-dy * 5e-2f, glm::vec3(0, 0, 0), xaxis);
+		camera.rotate(-dx * 5e-2f, glm::vec3(0, 0, 0), YAXIS);
+		camera.orbit(-dy * 5e-2f, glm::vec3(0, 0, 0), XAXIS);
 		glutPostRedisplay();
 	}
 }
@@ -137,22 +135,22 @@ PhongTextureDemo::PhongTextureDemo() : RoomDemo() {
 	
 	// textures
 	// diffuse maps
-	tex_marble.loadData("./Textures/marble.png");
-	tex_tiles.loadData("./Textures/tiles.jpg");
-	tex_concrete.loadData("./Textures/concrete.png");
-	tex_mosaic.loadData("./Textures/mosaic.jpg");
+	tex_marble.loadData(GL_RGB, "./Textures/marble.png");
+	tex_tiles.loadData(GL_RGB, "./Textures/tiles.jpg");
+	tex_concrete.loadData(GL_RGB, "./Textures/concrete.png");
+	tex_mosaic.loadData(GL_RGB, "./Textures/mosaic.jpg");
 	
 	// spculular maps
-	tex_marble_spec.loadData("./Textures/marble_SPEC.tga");
-	tex_tiles_spec.loadData("./Textures/tiles_SPEC.tga");
-	tex_concrete_spec.loadData("./Textures/concrete_SPEC.tga");
-	tex_mosaic_spec.loadData("./Textures/mosaic_SPEC.tga");
+	tex_marble_spec.loadData(GL_RGB, "./Textures/marble_SPEC.tga");
+	tex_tiles_spec.loadData(GL_RGB, "./Textures/tiles_SPEC.tga");
+	tex_concrete_spec.loadData(GL_RGB, "./Textures/concrete_SPEC.tga");
+	tex_mosaic_spec.loadData(GL_RGB, "./Textures/mosaic_SPEC.tga");
 
 	// normal maps
-	tex_marble_norm.loadData("./Textures/marble_NORM.png");
-	tex_tiles_norm.loadData("./Textures/tiles_NORM.png");
-	tex_concrete_norm.loadData("./Textures/concrete_NORM.png");
-	tex_mosaic_norm.loadData("./Textures/mosaic_NORM.png");
+	tex_marble_norm.loadData(GL_RGB, "./Textures/marble_NORM.png");
+	tex_tiles_norm.loadData(GL_RGB, "./Textures/tiles_NORM.png");
+	tex_concrete_norm.loadData(GL_RGB, "./Textures/concrete_NORM.png");
+	tex_mosaic_norm.loadData(GL_RGB, "./Textures/mosaic_NORM.png");
 
 
 

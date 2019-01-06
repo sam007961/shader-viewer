@@ -7,20 +7,20 @@
 GLTexture::GLTexture() { glGenTextures(1, &handle); }
 GLTexture::~GLTexture() { glDeleteTextures(1, &handle); }
 
-void GLTexture::loadData(const char* path) {
+void GLTexture::loadData(GLuint format, const char* path) {
 	// load data
 	int width, height, nChannels;
 	byte* data = stbi_load(path, &width, &height, &nChannels, 0);
 	if(!data) throw std::runtime_error("Failed to load texture.");
 
 	// setup texture
-	setup(data, width, height, nChannels);
+	setup(format, data, width, height, nChannels);
 
 	// free data
 	stbi_image_free(data);
 }
 
-void GLTexture2D::setup(byte* data, int width, int height, int nChannels) {
+void GLTexture2D::setup(GLuint format, byte* data, int width, int height, int nChannels) {
 	// bind
 	glBindTexture(GL_TEXTURE_2D, handle);
 
@@ -31,6 +31,6 @@ void GLTexture2D::setup(byte* data, int width, int height, int nChannels) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// load texture
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 }

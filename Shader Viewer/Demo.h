@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Geometry.h"
 #include "Camera.h"
+#include "Light.h"
 
 class Demo {
 public:
@@ -17,12 +18,12 @@ class RoomDemo : public Demo {
 protected:
 	typedef Geometry<InterleavedLayout<VertexPNTtb> > Geometry;
 	typedef DrawableObject<Geometry> DObject;
-	typedef glm::vec3 Light;
 
+	int width, height;
 	Geometry geom_sphere, geom_plane;
 	Camera camera;
 	DObject sphere, floor, ceiling, back_wall, front_wall, left_wall, right_wall;
-	Light light;
+	PointLight light;
 
 	Renderer renderer;
 	LightingShader* shader;
@@ -58,4 +59,14 @@ private:
 
 public:
 	PhongTextureDemo();
+};
+
+class PhongShadowDemo : public PhongTextureDemo {
+private:
+	typedef GLTexture2D Texture;
+
+	Texture tex_shadow;
+
+public:
+	PhongShadowDemo();
 };
