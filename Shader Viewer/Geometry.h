@@ -42,13 +42,21 @@ void buildUVSphere(const float radius, const unsigned int slices, const unsigned
 	for (unsigned int u = 0; u < slices + 1; u++) {
 		for (unsigned int v = 0; v < stacks + 1; v++) {
 			float x, y, z;
+			glm::vec3 n, t, b;
 			x = cos(sliceRad * u) * sin(stackRad * v);
 			y = sin(sliceRad * u) * sin(stackRad * v);
 			z = cos(stackRad * v);
+
+			n = glm::vec3(x, y, z);
+			t = glm::vec3(-sin(sliceRad * u), cos(sliceRad * v), 0);
+			b = glm::cross(n, t);
+
 			*vert++ = Vertex(
 				x * radius, y * radius, z * radius,
 				x, y, z,
-				1.0f / slices * u, 1.0f / stacks * v
+				1.0f / slices * u, 1.0f / stacks * v,
+				t[0], t[1], t[2],
+				b[0], b[1], b[2]
 			);
 		}
 	}
@@ -79,25 +87,33 @@ void buildPlane(const float w, float h, std::vector<VertexType>& vertices, std::
 	*vert++ = Vertex(
 		-w / 2.0f, h / 2.0f, 0.0f,
 		0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f
+		0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f
 	);
 
 	*vert++ = Vertex(
 		-w / 2.0f, -h / 2.0f, 0.0f,
 		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f
+		0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f
 	);
 
 	*vert++ = Vertex(
 		+w / 2.0f, h / 2.0f, 0.0f,
 		0.0f, 0.0f, 1.0f,
-		1.0f, 1.0f
+		1.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f
 	);
 
 	*vert++ = Vertex(
 		+w / 2.0f, -h / 2.0f, 0.0f,
 		0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f
+		1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f
 	);
 
 	// populate indices

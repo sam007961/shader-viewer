@@ -9,7 +9,7 @@ Demo::Demo() {}
 // Room demo class
 RoomDemo::RoomDemo() : clicked(false) {
 	// geometry
-	std::vector<VertexPNT> vertices;
+	std::vector<VertexPNTtb> vertices;
 	std::vector<unsigned int> indices;
 	buildUVSphere(1.0f, 24, 24, vertices, indices);
 	geom_sphere.loadData(vertices);
@@ -27,7 +27,7 @@ RoomDemo::RoomDemo() : clicked(false) {
 	Material green = { { 0.1f, 1.0f, 0.1f }, { 0.05f, 0.05f, 0.05f } };
 
 	// light
-	light = Light(-1.8, 1.8, 1.8);
+	light = Light(-1.8, 1.8, 1.5);
 
 	// drawables
 	sphere.setGeometry(&geom_sphere);
@@ -136,25 +136,48 @@ PhongTextureDemo::PhongTextureDemo() : RoomDemo() {
 	shader->setLightColor(glm::vec3(1, 1, 1));
 	
 	// textures
-	tex_marble.loadData(GL_RGB, "./Textures/marble.png");
-	tex_tiles.loadData(GL_RGB, "./Textures/tiles.jpg");
-	tex_concrete.loadData(GL_RGB, "./Textures/concrete.png");
-	tex_mosaic.loadData(GL_RGB, "./Textures/mosaic.jpg");
+	// diffuse maps
+	tex_marble.loadData("./Textures/marble.png");
+	tex_tiles.loadData("./Textures/tiles.jpg");
+	tex_concrete.loadData("./Textures/concrete.png");
+	tex_mosaic.loadData("./Textures/mosaic.jpg");
+	
+	// spculular maps
+	tex_marble_spec.loadData("./Textures/marble_SPEC.tga");
+	tex_tiles_spec.loadData("./Textures/tiles_SPEC.tga");
+	tex_concrete_spec.loadData("./Textures/concrete_SPEC.tga");
+	tex_mosaic_spec.loadData("./Textures/mosaic_SPEC.tga");
+
+	// normal maps
+	tex_marble_norm.loadData("./Textures/marble_NORM.png");
+	tex_tiles_norm.loadData("./Textures/tiles_NORM.png");
+	tex_concrete_norm.loadData("./Textures/concrete_NORM.png");
+	tex_mosaic_norm.loadData("./Textures/mosaic_NORM.png");
+
+
 
 	// materials
 	Material marble, tiles, concrete, mosaic;
 
 	marble.ambient = { 0.05, 0.05, 0.05 };
 	marble.textures[0] = tex_marble;
+	marble.textures[1] = tex_marble_spec;
+	marble.textures[2] = tex_marble_norm;
 
 	tiles.ambient = { 0.05, 0.05, 0.05 };
 	tiles.textures[0] = tex_tiles;
+	tiles.textures[1] = tex_tiles_spec;
+	tiles.textures[2] = tex_tiles_norm;
 
 	concrete.ambient = { 0.05, 0.05, 0.05 };
 	concrete.textures[0] = tex_concrete;
+	concrete.textures[1] = tex_concrete_spec;
+	concrete.textures[2] = tex_concrete_norm;
 
 	mosaic.ambient = { 0.05, 0.05, 0.05 };
 	mosaic.textures[0] = tex_mosaic;
+	mosaic.textures[1] = tex_mosaic_spec;
+	mosaic.textures[2] = tex_mosaic_norm;
 
 	sphere.setMaterial(marble);
 	floor.setMaterial(tiles);

@@ -7,6 +7,7 @@
 
 #include "GLObject.h"
 
+// TODO: use inheritance in vertex types
 // Vertex Types
 // Generic Vertex structure
 // Contains all possible vertex data
@@ -14,13 +15,18 @@ struct Vertex {
 	glm::vec3 position; // position
 	glm::vec3 normal;   // normal
 	glm::vec2 texture;  // uv-coordiantes
+	glm::vec3 tangent; // tangent vector
+	glm::vec3 bitangent; // cotangent vector
 
 	// construct given all data
 	Vertex( 
 		float x, float y, float z,
 		float nx, float ny, float nz,
-		float tu, float tv)
-		: position(x, y, z), normal(nx, ny, nz), texture(tu, tv) {}
+		float tu, float tv,
+		float tx, float ty, float tz,
+		float bx, float by , float bz)
+		: position(x, y, z), normal(nx, ny, nz), texture(tu, tv),
+		tangent(tx, ty, tz), bitangent(bx, by, bz) {}
 };
 
 /* Vertex subtypes
@@ -85,6 +91,41 @@ struct VertexPNT {
 		position = v.position;
 		normal = v.normal;
 		texture = v.texture;
+	}
+};
+
+struct VertexPNTtb {
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 texture;
+	glm::vec3 tangent;
+	glm::vec3 bitangent;
+
+	static void enableAttributes(unsigned int loc = 0) {
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPNTtb), (GLvoid*)offsetof(VertexPNTtb, position));
+		glEnableVertexAttribArray(loc++);
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPNTtb), (GLvoid*)offsetof(VertexPNTtb, normal));
+		glEnableVertexAttribArray(loc++);
+		glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPNTtb), (GLvoid*)offsetof(VertexPNTtb, texture));
+		glEnableVertexAttribArray(loc++);
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPNTtb), (GLvoid*)offsetof(VertexPNTtb, tangent));
+		glEnableVertexAttribArray(loc++);
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(VertexPNTtb), (GLvoid*)offsetof(VertexPNTtb, bitangent));
+		glEnableVertexAttribArray(loc++);
+	}
+
+	VertexPNTtb() {}
+	VertexPNTtb(Vertex v) {
+		position = v.position;
+		normal = v.normal;
+		texture = v.texture;
+		tangent = v.tangent;
+		bitangent = v.bitangent;
 	}
 };
 

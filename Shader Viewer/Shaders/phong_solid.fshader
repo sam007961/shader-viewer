@@ -19,7 +19,7 @@ void main() {
     vec3 reflected = reflect(-toLight, normal);
 
     vec3 diffuse = max(dot(toLight, normal), 0.0) * uLightColor;
-    vec3 specular = pow(max(dot(toCamera, reflected), 0.0), 32) * uLightColor;
+    vec3 specular = pow(max(dot(toCamera, reflected), 0.0), 64) * uLightColor;
 
     vec3 color = (diffuse + specular + uAmbient) * uColor;
     fragColor = vec4(color, 1.0);

@@ -71,9 +71,13 @@ public:
 class PhongTexture : public LightingShader {
 private:
 	GLuint uTexture;
+	GLuint uSpecularMap;
+	GLuint uNormalMap;
 
 public:
 	PhongTexture();
 	void setTexture(GLuint texture);
+	void setSpecularMap(GLuint texture);
+	void setNormalMap(GLuint texture);
 	virtual void loadMaterial(const Material& material);
 };

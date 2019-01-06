@@ -13,19 +13,9 @@ public:
 	virtual void motion(const int x, const int y, const int dx, const int dy) = 0;
 };
 
-//g_mouseLClickButton |= (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN);
-//g_mouseRClickButton |= (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN);
-//g_mouseMClickButton |= (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN);
-//
-//g_mouseLClickButton &= !(button == GLUT_LEFT_BUTTON && state == GLUT_UP);
-//g_mouseRClickButton &= !(button == GLUT_RIGHT_BUTTON && state == GLUT_UP);
-//g_mouseMClickButton &= !(button == GLUT_MIDDLE_BUTTON && state == GLUT_UP);
-//
-//g_mouseClickDown = g_mouseLClickButton || g_mouseRClickButton || g_mouseMClickButton;
-
 class RoomDemo : public Demo {
 protected:
-	typedef Geometry<InterleavedLayout<VertexPNT> > Geometry;
+	typedef Geometry<InterleavedLayout<VertexPNTtb> > Geometry;
 	typedef DrawableObject<Geometry> DObject;
 	typedef glm::vec3 Light;
 
@@ -62,7 +52,9 @@ class PhongTextureDemo : public RoomDemo {
 private:
 	typedef GLTexture2D Texture;
 
-	Texture tex_marble, tex_tiles, tex_concrete, tex_mosaic;
+	Texture tex_marble, tex_tiles, tex_concrete, tex_mosaic; // diffuse maps
+	Texture tex_marble_spec, tex_tiles_spec, tex_concrete_spec, tex_mosaic_spec; // specular maps
+	Texture tex_marble_norm, tex_tiles_norm, tex_concrete_norm, tex_mosaic_norm; // normal maps;
 
 public:
 	PhongTextureDemo();

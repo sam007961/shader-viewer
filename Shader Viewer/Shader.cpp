@@ -159,6 +159,8 @@ void PhongSolid::loadMaterial(const Material& material) {
 
 PhongTexture::PhongTexture() : LightingShader("./Shaders/phong_texture.fshader") {
 	uTexture = getUniformLocation("uTexture");
+	uSpecularMap = getUniformLocation("uSpecularMap");
+	uNormalMap = getUniformLocation("uNormalMap");
 }
 
 void PhongTexture::setTexture(GLuint texture) {
@@ -167,7 +169,21 @@ void PhongTexture::setTexture(GLuint texture) {
 	setUniform(uTexture, 0);
 }
 
+void PhongTexture::setSpecularMap(GLuint texture) {
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	setUniform(uSpecularMap, 1);
+}
+
+void PhongTexture::setNormalMap(GLuint texture) {
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	setUniform(uNormalMap, 2);
+}
+
 void PhongTexture::loadMaterial(const Material& material) {
 	LightingShader::loadMaterial(material);
 	setTexture(material.textures[0]);
+	setSpecularMap(material.textures[1]);
+	setNormalMap(material.textures[2]);
 }
