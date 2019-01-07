@@ -28,6 +28,12 @@
     <None Include="Shaders\phong_texture.fshader">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\depth.fshader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\phong_texture_shadow.fshader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -95,5 +101,10 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\depth.vshader">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -101,7 +101,7 @@ GLProgram::~GLProgram() { glDeleteProgram(handle); }
 CameraShader::CameraShader(const char* vert_file, const char* frag_file) {
 	GLShader* vert = GLShader::VertexShader();
 	GLShader* frag = GLShader::FragmentShader();
-	vert->compile(std::ifstream("./Shaders/lighting.vshader"));
+	vert->compile(std::ifstream(vert_file));
 	frag->compile(std::ifstream(frag_file));
 	link(*vert, *frag);
 	delete vert; delete frag;
@@ -109,26 +109,27 @@ CameraShader::CameraShader(const char* vert_file, const char* frag_file) {
 	// get camera uniforms
 	uModelViewMatrix = getUniformLocation("uModelViewMatrix");
 	uProjectionMatrix = getUniformLocation("uProjectionMatrix");
-	uNormalMatrix = getUniformLocation("uNormalMatrix");
 }
 
 void CameraShader::setModelView(glm::mat4 m) {
 	setUniform(uModelViewMatrix, m);
-	glm::mat3 normalMatrix = glm::inverse(glm::transpose(glm::mat3(m)));
-	setUniform(uNormalMatrix, normalMatrix);
 }
 
 void CameraShader::setProjection(glm::mat4 m) {
 	setUniform(uProjectionMatrix, m);
 }
 
+// Depth Shader
+DepthShader::DepthShader() : CameraShader("./Shaders/depth.vshader", "./Shaders/depth.fshader") {}
+
 // Lighting Shader
 LightingShader::LightingShader(const char* frag_file) 
 	: CameraShader("./Shaders/lighting.vshader", frag_file) {
-	// get uniforms
+	// get lighting uniforms
 	uAmbient = getUniformLocation("uAmbient");
 	uLight = getUniformLocation("uLight");
 	uLightColor = getUniformLocation("uLightColor");
+	uNormalMatrix = getUniformLocation("uNormalMatrix");
 }
 
 void LightingShader::setAmbient(const glm::vec3& ambient) {
@@ -141,6 +142,12 @@ void LightingShader::setLight(const glm::vec3& light, glm::mat4 view) {
 
 void LightingShader::setLightColor(const glm::vec3& lightColor) {
 	setUniform(uLightColor, lightColor);
+}
+
+void LightingShader::setModelView(glm::mat4 m) {
+	CameraShader::setModelView(m);
+	glm::mat3 normalMatrix = glm::inverse(glm::transpose(glm::mat3(m)));
+	setUniform(uNormalMatrix, normalMatrix);
 }
 
 void LightingShader::loadMaterial(const Material& material) {
@@ -162,7 +169,7 @@ void PhongSolid::loadMaterial(const Material& material) {
 }
 
 // Texture Phong Shader
-PhongTexture::PhongTexture() : LightingShader("./Shaders/phong_texture.fshader") {
+PhongTexture::PhongTexture(const char*  frag_file) : LightingShader(frag_file) {
 	uTexture = getUniformLocation("uTexture");
 	uSpecularMap = getUniformLocation("uSpecularMap");
 	uNormalMap = getUniformLocation("uNormalMap");
@@ -191,4 +198,15 @@ void PhongTexture::loadMaterial(const Material& material) {
 	setTexture(material.textures[0]);
 	setSpecularMap(material.textures[1]);
 	setNormalMap(material.textures[2]);
+}
+
+// Texture Phong Shader with Shadows
+PhongTextureShadow::PhongTextureShadow() : PhongTexture("./Shaders/phong_texture_shader.fshader") {
+	uShadowMap = getUniformLocation("uShadowMap");
+}
+
+void PhongTextureShadow::setShadowMap(GLuint texture) {
+	glActiveTexture(GL_TEXTURE16);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	setUniform(uShadowMap, 16);
 }

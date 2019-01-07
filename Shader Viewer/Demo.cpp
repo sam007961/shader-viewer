@@ -152,8 +152,6 @@ PhongTextureDemo::PhongTextureDemo() : RoomDemo() {
 	tex_concrete_norm.loadData(GL_RGB, "./Textures/concrete_NORM.png");
 	tex_mosaic_norm.loadData(GL_RGB, "./Textures/mosaic_NORM.png");
 
-
-
 	// materials
 	Material marble, tiles, concrete, mosaic;
 
@@ -184,4 +182,20 @@ PhongTextureDemo::PhongTextureDemo() : RoomDemo() {
 	front_wall.setMaterial(mosaic);
 	left_wall.setMaterial(mosaic);
 	right_wall.setMaterial(mosaic);
+}
+
+PhongTextureShadowDemo::PhongTextureShadowDemo() : PhongTextureDemo() {}
+
+void PhongTextureShadowDemo::draw(const DObject& obj) {
+	renderer.setProgram(&depthShader);
+	glm::mat4 viewMatrix = camera.makeViewMatrix(); // view
+	glm::mat4 modelViewMatrix = viewMatrix * obj.makeModelMatrix(); // model view
+	depthShader.setModelView(modelViewMatrix);
+	renderer.draw(*obj.geometry()); // render
+}
+
+void PhongTextureShadowDemo::draw() {
+	clear();
+	depthShader.setProjection(camera.makeProjMatrix());
+	drawEverything();	
 }

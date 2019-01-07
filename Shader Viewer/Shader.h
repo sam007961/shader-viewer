@@ -41,12 +41,17 @@ public:
 class CameraShader : public GLProgram {
 private:
 	// Camera
-	GLuint uModelViewMatrix, uProjectionMatrix, uNormalMatrix;
+	GLuint uModelViewMatrix, uProjectionMatrix;
 
 public:
 	CameraShader(const char* vert_file, const char* frag_file);
-	void setModelView(glm::mat4 m); // set modelViewMatrix and automatically set normalMatrix
+	void setModelView(glm::mat4 m); // set modelViewMatrix
 	void setProjection(glm::mat4 m); // set projectionMatrix
+};
+
+class DepthShader : public CameraShader {
+public:
+	DepthShader();
 };
 
 class LightingShader : public CameraShader {
@@ -54,11 +59,16 @@ private:
 	// Ambient Light | Light Direction | Light Color
 	GLuint uAmbient, uLight, uLightColor;
 
+	// normal transformation matrix
+	GLuint uNormalMatrix;
+
 public:
 	LightingShader(const char* frag_file);
 	void setAmbient(const glm::vec3& ambient); // set ambient light
 	void setLight(const glm::vec3& light, glm::mat4 view=glm::mat4(1)); // set light position
 	void setLightColor(const glm::vec3& lightColor); // set light color
+	void setModelView(glm::mat4 m); // set modelViewMatrix and automatically set normalMatrix
+
 	virtual void loadMaterial(const Material& material); // load uniforms from material
 };
 
@@ -80,11 +90,18 @@ private:
 	GLuint uNormalMap;
 
 public:
-	PhongTexture();
+	PhongTexture(const char*  frag_file="./Shaders/phong_texture.fshader");
 	void setTexture(GLuint texture);
 	void setSpecularMap(GLuint texture);
 	void setNormalMap(GLuint texture);
 	virtual void loadMaterial(const Material& material);
 };
 
-//class DepthShader :
+class PhongTextureShadow : public PhongTexture {
+private:
+	GLuint uShadowMap;
+
+public:
+	PhongTextureShadow();
+	void setShadowMap(GLuint texture);
+};

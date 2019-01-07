@@ -1,13 +1,13 @@
 #include "Light.h"
 
-Light::Light() { /*ortho*/ }
-glm::mat4 Light::makeLightMatrix() { return makeProjMatrix() * makeViewMatrix(); }
+Light::Light() {}
 
-PointLight::PointLight() : Light() {}
+// TODO cubemap for point light
+PointLight::PointLight() : Light() { orthogonal(-10.0f, 10.0f, -10.0f, 10.0f); }
 PointLight::PointLight(float x, float y, float z) : Light() { setPosition(x, y, z); }
 PointLight::operator glm::vec3() const { return rbt.translation; }
 
-DirectionalLight::DirectionalLight() : Light() {}
+DirectionalLight::DirectionalLight() : Light() { orthogonal(-10.0f, 10.0f, -10.0f, 10.0f); }
 DirectionalLight::DirectionalLight(float x, float y, float z) : Light() { lookAt(x, y, z); }
 void DirectionalLight::setDirection(float x, float y, float z) {
 	glm::vec3 position = rbt.translation;

@@ -32,8 +32,9 @@ protected:
 
 	void clear(); // clear frame buffer
 	void setProjection(); // set camera projection
-	void draw(const DObject& obj); // draw single object
 	void drawEverything(); // draw entire room
+
+	virtual void draw(const DObject& obj); // draw single object
 	
 public:
 	RoomDemo();
@@ -61,12 +62,16 @@ public:
 	PhongTextureDemo();
 };
 
-class PhongShadowDemo : public PhongTextureDemo {
+class PhongTextureShadowDemo : public PhongTextureDemo {
 private:
 	typedef GLTexture2D Texture;
 
-	Texture tex_shadow;
+	// depth map
+	DepthShader depthShader;
+	Texture depth_map;
 
 public:
-	PhongShadowDemo();
+	PhongTextureShadowDemo();
+	virtual void draw(const DObject& obj); // draw single object
+	virtual void draw();
 };

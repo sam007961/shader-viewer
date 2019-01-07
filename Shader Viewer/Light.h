@@ -5,7 +5,6 @@ class Light : public Camera {
 public:
 	Light();
 	virtual operator glm::vec3() const = 0;
-	glm::mat4 makeLightMatrix();
 };
 
 class PointLight : public Light {

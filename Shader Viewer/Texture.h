@@ -19,7 +19,6 @@ public:
 // 2D texture
 class GLTexture2D : public GLTexture {
 protected:
-	typedef unsigned char byte;
 	virtual void setup(GLuint format, byte* data, int width, int height, int nChannels);
 
 public:
