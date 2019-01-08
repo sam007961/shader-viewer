@@ -14,13 +14,14 @@ uniform sampler2D uShadowMap;
 uniform vec3 uAmbient;
 uniform vec3 uLight;
 uniform vec3 uLightColor;   
+uniform float shadowBias = 0.01;
 
 float getShadow(vec4 posLightSpace){
     vec3 projCoords = posLightSpace.xyz / posLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
     float closestDepth = texture(uShadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
-    return currentDepth - 0.01 > closestDepth ? 1.0 : 0.0;
+    return currentDepth - shadowBias > closestDepth ? 1.0 : 0.0;
 }
 
 void main() {
@@ -53,7 +54,7 @@ void main() {
     vec3 diffuse = diff * surfaceColor.rgb;
 
     // specular 
-    float spec = pow(max(dot(toCamera, reflected), 0.0), 64);
+    float spec = pow(max(dot(toCamera, reflected), 0.0), 64.0);
     vec3 specular =  spec * specularIntensity.rgb;
 
     vec3 color = ((diffuse + specular)*(1.0 - shadow) + ambient) * uLightColor;
