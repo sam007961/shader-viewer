@@ -1,6 +1,7 @@
 #include "Light.h"
 
 Light::Light() {}
+glm::mat4 Light::makeLightSpaceMatrix() { return makeProjMatrix() * makeViewMatrix(); }
 
 // TODO cubemap for point light
 PointLight::PointLight() : Light() { orthogonal(-10.0f, 10.0f, -10.0f, 10.0f); }

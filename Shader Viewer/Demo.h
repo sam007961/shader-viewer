@@ -4,6 +4,7 @@
 #include "Geometry.h"
 #include "Camera.h"
 #include "Light.h"
+#include "Framebuffer.h"
 
 class Demo {
 public:
@@ -51,7 +52,7 @@ public:
 };
 
 class PhongTextureDemo : public RoomDemo {
-private:
+protected:
 	typedef GLTexture2D Texture;
 
 	Texture tex_marble, tex_tiles, tex_concrete, tex_mosaic; // diffuse maps
@@ -62,16 +63,40 @@ public:
 	PhongTextureDemo();
 };
 
-class PhongTextureShadowDemo : public PhongTextureDemo {
-private:
+class DepthShaderDemo : public RoomDemo {
+protected:
 	typedef GLTexture2D Texture;
 
 	// depth map
 	DepthShader depthShader;
-	Texture depth_map;
+	TextureShader textureShader;
+	GLFramebuffer depthBuffer;
+	Texture depthMap;
+	DObject quad;
+
+	virtual void draw(const DObject& obj); // draw single object
+	void drawDepth(const DObject& obj);
+	void drawDepths();
+
+public:
+	DepthShaderDemo();
+	virtual void draw();
+};
+
+class PhongTextureShadowDemo : public PhongTextureDemo {
+protected:
+	typedef GLTexture2D Texture;
+
+	// depth map
+	DepthShader depthShader;
+	GLFramebuffer depthBuffer;
+	Texture depthMap;
+	void drawShadow(const DObject& obj);
+	void drawShadows();
+
+	virtual void draw(const DObject& obj); // draw single object
 
 public:
 	PhongTextureShadowDemo();
-	virtual void draw(const DObject& obj); // draw single object
 	virtual void draw();
 };

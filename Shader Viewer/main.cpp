@@ -15,7 +15,7 @@ using glm::vec3;
 #include "Demo.h"
 
 // globals
-#define DEMO PhongTextureShadowDemo
+#define DEMO DepthShaderDemo
 static Demo* g_demo;
 static int g_mouseClickX = 0;
 static int g_mouseClickY = 0;
@@ -46,6 +46,7 @@ int main(int argc, char * argv[]) {
 		throw std::runtime_error("failed to load extentions.");
 	initGLState();
 	g_demo = new DEMO;
+	checkGlErrors();
 	glutMainLoop();
 	delete g_demo;
 	return 0;

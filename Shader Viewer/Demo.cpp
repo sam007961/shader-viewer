@@ -184,18 +184,109 @@ PhongTextureDemo::PhongTextureDemo() : RoomDemo() {
 	right_wall.setMaterial(mosaic);
 }
 
-PhongTextureShadowDemo::PhongTextureShadowDemo() : PhongTextureDemo() {}
+// depth shader
+DepthShaderDemo::DepthShaderDemo() : RoomDemo() {
+	depthMap.attachDepthBuffer(depthBuffer, 1024, 1024);
+	//depthMap.loadData(GL_RGB, "./Textures/tiles.jpg");
+	textureShader.setTexture(depthMap);
+	quad.setGeometry(&geom_plane);
+}
 
-void PhongTextureShadowDemo::draw(const DObject& obj) {
+void DepthShaderDemo::draw(const DObject& obj) {
+	renderer.setProgram(&textureShader);
+	glm::mat4 viewMatrix = glm::mat4(1); // view
+	glm::mat4 modelViewMatrix = viewMatrix * obj.makeModelMatrix(); // model view
+	textureShader.setModelView(modelViewMatrix);
+	renderer.draw(*obj.geometry()); // render
+}
+
+void DepthShaderDemo::drawDepth(const DObject& obj) {
 	renderer.setProgram(&depthShader);
 	glm::mat4 viewMatrix = camera.makeViewMatrix(); // view
 	glm::mat4 modelViewMatrix = viewMatrix * obj.makeModelMatrix(); // model view
 	depthShader.setModelView(modelViewMatrix);
-	renderer.draw(*obj.geometry()); // render
+	//depthShader.setModelView(glm::mat4(1));
+	renderer.draw(*obj.geometry(), depthBuffer); // render
+}
+
+void DepthShaderDemo::drawDepths() {
+	drawDepth(sphere);
+	drawDepth(floor);
+	drawDepth(ceiling);
+	drawDepth(back_wall);
+	drawDepth(front_wall);
+	drawDepth(left_wall);
+	drawDepth(right_wall);
+}
+
+void DepthShaderDemo::draw() {
+	glViewport(0, 0, 1024, 1024);
+	depthShader.setProjection(glm::ortho(-6.0f, 6.0f, -6.0f, 6.0f, 0.01f, 100.0f));
+	depthBuffer.clear();
+	drawDepths();
+	clear();
+	glViewport(0, 0, width, height);
+	textureShader.setProjection(glm::ortho(-1, 1, -1, 1));
+	//textureShader.setProjection(camera.makeProjMatrix());
+	draw(quad);
+}
+
+PhongTextureShadowDemo::PhongTextureShadowDemo() : PhongTextureDemo() {
+	// change shader
+	delete shader;
+	shader = new PhongTextureShadow;
+	shader->setLightColor(glm::vec3(1, 1, 1));
+	light.lookAt(0, 0, 0);
+
+	// attach shadow map to depth buffer
+	depthMap.attachDepthBuffer(depthBuffer, 1024, 1024);
+	PhongTextureShadow* sshader = dynamic_cast<PhongTextureShadow*>(shader);
+	sshader->setShadowMap(depthMap);
+	//depthMap.loadData(GL_RGB, "./Textures/marble_SPEC.tga");
+
+	Material temp;
+	temp.ambient = { 0.0, 0.0, 0.0 };
+	temp.textures[0] = depthMap;
+	temp.textures[1] = tex_mosaic_spec;
+	temp.textures[2] = tex_mosaic_norm;
+
+	front_wall.setMaterial(temp);
+}
+
+void PhongTextureShadowDemo::drawShadow(const DObject& obj) {
+	renderer.setProgram(&depthShader);
+	glm::mat4 viewMatrix = light.makeViewMatrix(); // view
+	glm::mat4 modelViewMatrix = viewMatrix * obj.makeModelMatrix(); // model view
+	depthShader.setModelView(modelViewMatrix);
+	renderer.draw(*obj.geometry(), depthBuffer); // render
+}
+
+void PhongTextureShadowDemo::drawShadows() {
+	glBindFramebuffer(GL_FRAMEBUFFER, depthBuffer);
+	glViewport(0, 0, 1024, 1024);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	drawShadow(sphere);
+	drawShadow(floor);
+	drawShadow(ceiling);
+	drawShadow(back_wall);
+	drawShadow(front_wall);
+	drawShadow(left_wall);
+	drawShadow(right_wall);
+	glViewport(0, 0, width, height);
+}
+
+void PhongTextureShadowDemo::draw(const DObject& obj) {
+	PhongTextureShadow* sshader = dynamic_cast<PhongTextureShadow*>(shader);
+	sshader->setModelLightSpaceMatrix(light.makeLightSpaceMatrix() * obj.makeModelMatrix());
+	PhongTextureDemo::draw(obj);
 }
 
 void PhongTextureShadowDemo::draw() {
 	clear();
-	depthShader.setProjection(camera.makeProjMatrix());
+	depthBuffer.clear();
+	setProjection(); // lighting shader projection
+	depthShader.setProjection(light.makeProjMatrix()); // depth shader projection
+	drawShadows();
 	drawEverything();	
 }

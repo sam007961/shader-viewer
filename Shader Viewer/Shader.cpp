@@ -122,6 +122,15 @@ void CameraShader::setProjection(glm::mat4 m) {
 // Depth Shader
 DepthShader::DepthShader() : CameraShader("./Shaders/depth.vshader", "./Shaders/depth.fshader") {}
 
+// Texture Shader
+TextureShader::TextureShader() : CameraShader("./Shaders/lighting.vshader", "./Shaders/texture.fshader") {
+	uTexture = getUniformLocation("uTexture");
+};
+void TextureShader::setTexture(GLuint texture) {
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	setUniform(uTexture, 0);
+}
 // Lighting Shader
 LightingShader::LightingShader(const char* frag_file) 
 	: CameraShader("./Shaders/lighting.vshader", frag_file) {
@@ -201,8 +210,9 @@ void PhongTexture::loadMaterial(const Material& material) {
 }
 
 // Texture Phong Shader with Shadows
-PhongTextureShadow::PhongTextureShadow() : PhongTexture("./Shaders/phong_texture_shader.fshader") {
+PhongTextureShadow::PhongTextureShadow() : PhongTexture("./Shaders/phong_texture_shadow.fshader") {
 	uShadowMap = getUniformLocation("uShadowMap");
+	uModelLightSpaceMatrix = getUniformLocation("uModelLightSpaceMatrix");
 }
 
 void PhongTextureShadow::setShadowMap(GLuint texture) {
@@ -210,3 +220,8 @@ void PhongTextureShadow::setShadowMap(GLuint texture) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	setUniform(uShadowMap, 16);
 }
+
+void PhongTextureShadow::setModelLightSpaceMatrix(glm::mat4 m) {
+	setUniform(uModelLightSpaceMatrix, m);
+}
+

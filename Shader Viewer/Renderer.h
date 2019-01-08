@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Geometry.h"
 #include "Texture.h"
+#include "Framebuffer.h"
 
 class Renderer {
 private:
@@ -32,13 +33,15 @@ public:
 	}
 
 	template<class GeometryType>
-	void draw(const GeometryType& target, const GLTexture& texture, GLenum mode = GL_TRIANGLES) const { // draw geometry to texture
+	void draw(const GeometryType& target, const GLFramebuffer& fbo, GLenum mode = GL_TRIANGLES) const { // draw geometry to texture
 		assert(program != nullptr);
 		assert((*program) > 0);
 
 		glUseProgram(*program);
 		glBindVertexArray(target);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glDrawElements(mode, target.elementCount(), GL_UNSIGNED_INT, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindVertexArray(0);
 		glUseProgram(0);
 	}

@@ -54,6 +54,14 @@ public:
 	DepthShader();
 };
 
+class TextureShader : public CameraShader {
+private:
+	GLuint uTexture;
+public:
+	TextureShader();
+	void setTexture(GLuint texture);
+};
+
 class LightingShader : public CameraShader {
 private:
 	// Ambient Light | Light Direction | Light Color
@@ -100,8 +108,10 @@ public:
 class PhongTextureShadow : public PhongTexture {
 private:
 	GLuint uShadowMap;
+	GLuint uModelLightSpaceMatrix;
 
 public:
 	PhongTextureShadow();
 	void setShadowMap(GLuint texture);
+	void setModelLightSpaceMatrix(glm::mat4 m);
 };

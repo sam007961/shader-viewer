@@ -179,6 +179,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Demo.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="GLObject.h" />
@@ -192,6 +193,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Demo.cpp" />
+    <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RigidBodyTransform.cpp" />
