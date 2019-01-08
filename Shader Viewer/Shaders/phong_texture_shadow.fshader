@@ -20,7 +20,7 @@ float getShadow(vec4 posLightSpace){
     projCoords = projCoords * 0.5 + 0.5;
     float closestDepth = texture(uShadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
-    return currentDepth > closestDepth ? 1.0 : 0.0;
+    return currentDepth - 0.01 > closestDepth ? 1.0 : 0.0;
 }
 
 void main() {

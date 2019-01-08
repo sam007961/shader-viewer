@@ -243,14 +243,6 @@ PhongTextureShadowDemo::PhongTextureShadowDemo() : PhongTextureDemo() {
 	PhongTextureShadow* sshader = dynamic_cast<PhongTextureShadow*>(shader);
 	sshader->setShadowMap(depthMap);
 	//depthMap.loadData(GL_RGB, "./Textures/marble_SPEC.tga");
-
-	Material temp;
-	temp.ambient = { 0.0, 0.0, 0.0 };
-	temp.textures[0] = depthMap;
-	temp.textures[1] = tex_mosaic_spec;
-	temp.textures[2] = tex_mosaic_norm;
-
-	front_wall.setMaterial(temp);
 }
 
 void PhongTextureShadowDemo::drawShadow(const DObject& obj) {
@@ -287,6 +279,7 @@ void PhongTextureShadowDemo::draw() {
 	depthBuffer.clear();
 	setProjection(); // lighting shader projection
 	depthShader.setProjection(light.makeProjMatrix()); // depth shader projection
+	//depthShader.setProjection(glm::ortho(-6.0f, 6.0f, -6.0f, 6.0f, 0.01f, 100.0f));
 	drawShadows();
 	drawEverything();	
 }

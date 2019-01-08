@@ -4,8 +4,8 @@ Light::Light() {}
 glm::mat4 Light::makeLightSpaceMatrix() { return makeProjMatrix() * makeViewMatrix(); }
 
 // TODO cubemap for point light
-PointLight::PointLight() : Light() { orthogonal(-10.0f, 10.0f, -10.0f, 10.0f); }
-PointLight::PointLight(float x, float y, float z) : Light() { setPosition(x, y, z); }
+PointLight::PointLight() : Light() { orthogonal(-6.0f, 6.0f, -6.0f, 6.0f); }
+PointLight::PointLight(float x, float y, float z) : PointLight() { setPosition(x, y, z); }
 PointLight::operator glm::vec3() const { return rbt.translation; }
 
 DirectionalLight::DirectionalLight() : Light() { orthogonal(-10.0f, 10.0f, -10.0f, 10.0f); }
