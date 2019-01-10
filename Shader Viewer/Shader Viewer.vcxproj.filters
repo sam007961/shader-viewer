@@ -19,22 +19,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Shaders\lighting.vshader">
+    <None Include="Shaders\phong.texture.fshader">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\phong_solid.fshader">
+    <None Include="Shaders\phong.texture.shadow.fshader">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\phong_texture.fshader">
+    <None Include="Shaders\texture.fshader">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\depth.fshader">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\phong_texture_shadow.fshader">
+    <None Include="Shaders\phong.solid.fshader">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\texture.fshader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -79,6 +78,9 @@
     <ClInclude Include="Framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLError.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -108,9 +110,24 @@
     <ClCompile Include="Framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GLError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Shaders\phong.solid.vshader">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\phong.texture.shadow.vshader">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\texture.vshader">
+      <Filter>Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="Shaders\depth.vshader">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\phong.texture.vshader">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

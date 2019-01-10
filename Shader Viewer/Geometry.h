@@ -85,7 +85,7 @@ void buildPlane(const float w, float h, std::vector<VertexType>& vertices, std::
 
 	// populate vertices
 	*vert++ = Vertex(
-		-w / 2.0f, h / 2.0f, 0.0f,
+		-w / 2.0f, +h / 2.0f, 0.0f,
 		0.0f, 0.0f, 1.0f,
 		0.0f, 1.0f,
 		1.0f, 0.0f, 0.0f,
@@ -101,7 +101,7 @@ void buildPlane(const float w, float h, std::vector<VertexType>& vertices, std::
 	);
 
 	*vert++ = Vertex(
-		+w / 2.0f, h / 2.0f, 0.0f,
+		+w / 2.0f, +h / 2.0f, 0.0f,
 		0.0f, 0.0f, 1.0f,
 		1.0f, 1.0f,
 		1.0f, 0.0f, 0.0f,

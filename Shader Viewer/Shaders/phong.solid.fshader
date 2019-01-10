@@ -2,12 +2,13 @@
 
 in vec3 vPosition;
 in vec3 vNormal;
-out vec4 fragColor;
 
 uniform vec3 uColor;
 uniform vec3 uAmbient;
 uniform vec3 uLight;
-uniform vec3 uLightColor;   
+uniform vec3 uLightColor;
+
+out vec4 fragColor;
 
 void main() {
 

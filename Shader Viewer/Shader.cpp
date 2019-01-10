@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Shader.h"
+#include "Constants.h"
 // GLSHADER ///////////////////////////////////////////////////////////////////////////////////
 GLShader::GLShader(GLenum shaderType) : GLObject(glCreateShader(shaderType)) {};
 
@@ -39,22 +40,40 @@ void GLShader::compile(std::ifstream& source) {
 	compile(&text[0]);
 }
 
-GLShader* GLShader::VertexShader() { return  new GLShader(GL_VERTEX_SHADER); }
-GLShader* GLShader::FragmentShader() { return new GLShader(GL_FRAGMENT_SHADER); }
+Shader GLShader::VertexShader()   { return std::shared_ptr<GLShader>(new GLShader(GL_VERTEX_SHADER));   }
+Shader GLShader::FragmentShader() { return std::shared_ptr<GLShader>(new GLShader(GL_FRAGMENT_SHADER)); }
 
 // GLPROGRAM //////////////////////////////////////////////////////////////////////////////////
 GLProgram::GLProgram() : GLObject(glCreateProgram()) {}
+GLProgram::GLProgram(std::ifstream& vshader, std::ifstream& fshader) : GLProgram() {
+	compileAndLink(vshader, fshader); 
+}
 
-void GLProgram::link(const GLShader& vshader, const GLShader& fshader) {
+void GLProgram::link(Shader vshader, Shader fshader) {
 	GLint linked = 0; // Linked flag
-	glAttachShader(handle, vshader);
-	glAttachShader(handle, fshader);
+	glAttachShader(handle, *vshader);
+	glAttachShader(handle, *fshader);
 	glLinkProgram(handle);
-	glDetachShader(handle, vshader);
-	glDetachShader(handle, fshader);
+	glDetachShader(handle, *vshader);
+	glDetachShader(handle, *fshader);
 	glGetProgramiv(handle, GL_LINK_STATUS, &linked);
-	if (!linked)
+	if (!linked) {
+		GLint maxLength = 0;
+		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &maxLength);
+
+		// The maxLength includes the NULL character
+		std::vector<GLchar> infoLog(maxLength);
+		glGetProgramInfoLog(handle, maxLength, &maxLength, &infoLog[0]);
 		throw std::runtime_error("Failed to link shaders.");
+	}
+}
+
+void GLProgram::compileAndLink(std::ifstream& vshader, std::ifstream& fshader) {
+	Shader vert = GLShader::VertexShader();
+	Shader frag = GLShader::FragmentShader();
+	vert->compile(vshader);
+	frag->compile(fshader);
+	link(vert, frag);
 }
 
 GLuint GLProgram::getUniformLocation(const char* unif) {
@@ -97,15 +116,10 @@ void GLProgram::setUniform(GLuint unif, int i) {
 GLProgram::~GLProgram() { glDeleteProgram(handle); }
 
 // SHADER PROGRAMS ////////////////////////////////////////////////////////////////////////////
-// Camera Shader
-CameraShader::CameraShader(const char* vert_file, const char* frag_file) {
-	GLShader* vert = GLShader::VertexShader();
-	GLShader* frag = GLShader::FragmentShader();
-	vert->compile(std::ifstream(vert_file));
-	frag->compile(std::ifstream(frag_file));
-	link(*vert, *frag);
-	delete vert; delete frag;
 
+// Camera Shader
+CameraShader::CameraShader(std::ifstream& vshader, std::ifstream& fshader) 
+	: GLProgram(vshader, fshader) {
 	// get camera uniforms
 	uModelViewMatrix = getUniformLocation("uModelViewMatrix");
 	uProjectionMatrix = getUniformLocation("uProjectionMatrix");
@@ -120,10 +134,21 @@ void CameraShader::setProjection(glm::mat4 m) {
 }
 
 // Depth Shader
-DepthShader::DepthShader() : CameraShader("./Shaders/depth.vshader", "./Shaders/depth.fshader") {}
+DepthShader::DepthShader()
+	: CameraShader(
+		std::ifstream(SHADER_DIR + "depth.vshader"),
+		std::ifstream(SHADER_DIR + "depth.fshader")
+	) {}
 
 // Texture Shader
-TextureShader::TextureShader() : CameraShader("./Shaders/lighting.vshader", "./Shaders/texture.fshader") {
+TextureShader::TextureShader()
+	: TextureShader(
+		std::ifstream(SHADER_DIR + "texture.vshader"),
+		std::ifstream(SHADER_DIR + "texture.fshader")
+	) {}
+
+TextureShader::TextureShader(std::ifstream& vshader, std::ifstream& fshader) 
+	: CameraShader(vshader, fshader) {
 	uTexture = getUniformLocation("uTexture");
 };
 void TextureShader::setTexture(GLuint texture) {
@@ -131,9 +156,10 @@ void TextureShader::setTexture(GLuint texture) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	setUniform(uTexture, 0);
 }
+
 // Lighting Shader
-LightingShader::LightingShader(const char* frag_file) 
-	: CameraShader("./Shaders/lighting.vshader", frag_file) {
+LightingShader::LightingShader(std::ifstream& vshader, std::ifstream& fshader)
+	: CameraShader(vshader, fshader) {
 	// get lighting uniforms
 	uAmbient = getUniformLocation("uAmbient");
 	uLight = getUniformLocation("uLight");
@@ -144,8 +170,9 @@ LightingShader::LightingShader(const char* frag_file)
 void LightingShader::setAmbient(const glm::vec3& ambient) {
 	setUniform(uAmbient, ambient);
 }
-void LightingShader::setLight(const glm::vec3& light, glm::mat4 view) {
-	glm::vec3 clight = glm::vec3(view * glm::vec4(light, 1));
+void LightingShader::setLight(const glm::vec3& light, glm::mat4 viewMatrix) {
+	// transform light to camera coords
+	glm::vec3 clight = glm::vec3(viewMatrix * glm::vec4(light, 1));
 	setUniform(uLight, clight);
 }
 
@@ -164,7 +191,14 @@ void LightingShader::loadMaterial(const Material& material) {
 }
 
 // Solid Phong Shader
-PhongSolid::PhongSolid() : LightingShader("./Shaders/phong_solid.fshader") {
+PhongSolid::PhongSolid() 
+	: CameraShader(
+		std::ifstream(SHADER_DIR + "phong.solid.vshader"),
+		std::ifstream(SHADER_DIR + "phong.solid.fshader")
+	), LightingShader(
+		std::ifstream(SHADER_DIR + "phong.solid.vshader"),
+		std::ifstream(SHADER_DIR + "phong.solid.fshader")
+	) {
 	uColor = getUniformLocation("uColor");
 }
 
@@ -178,16 +212,18 @@ void PhongSolid::loadMaterial(const Material& material) {
 }
 
 // Texture Phong Shader
-PhongTexture::PhongTexture(const char*  frag_file) : LightingShader(frag_file) {
-	uTexture = getUniformLocation("uTexture");
+PhongTexture::PhongTexture()
+	: PhongTexture(
+		std::ifstream(SHADER_DIR + "phong.texture.vshader"),
+		std::ifstream(SHADER_DIR + "phong.texture.fshader")
+	) {}
+
+PhongTexture::PhongTexture(std::ifstream& vshader, std::ifstream& fshader)
+	: CameraShader(vshader, fshader),
+	TextureShader(vshader, fshader), 
+	LightingShader(vshader, fshader) {
 	uSpecularMap = getUniformLocation("uSpecularMap");
 	uNormalMap = getUniformLocation("uNormalMap");
-}
-
-void PhongTexture::setTexture(GLuint texture) {
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	setUniform(uTexture, 0);
 }
 
 void PhongTexture::setSpecularMap(GLuint texture) {
@@ -210,7 +246,14 @@ void PhongTexture::loadMaterial(const Material& material) {
 }
 
 // Texture Phong Shader with Shadows
-PhongTextureShadow::PhongTextureShadow() : PhongTexture("./Shaders/phong_texture_shadow.fshader") {
+PhongTextureShadow::PhongTextureShadow() 
+	: CameraShader(
+		std::ifstream(SHADER_DIR + "phong.texture.shadow.vshader"),
+		std::ifstream(SHADER_DIR + "phong.texture.shadow.fshader")
+	), PhongTexture(
+		std::ifstream(SHADER_DIR + "phong.texture.shadow.vshader"),
+		std::ifstream(SHADER_DIR + "phong.texture.shadow.fshader")
+	) {
 	uShadowMap = getUniformLocation("uShadowMap");
 	uModelLightSpaceMatrix = getUniformLocation("uModelLightSpaceMatrix");
 }

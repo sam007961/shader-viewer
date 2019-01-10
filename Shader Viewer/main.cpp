@@ -13,6 +13,7 @@ using glm::vec3;
 #include "Renderer.h"
 #include "Camera.h"
 #include "Demo.h"
+#include "GLError.h"
 
 // globals
 #define DEMO PhongTextureShadowDemo
@@ -34,9 +35,6 @@ static void reshape(const int w, const int h);
 static void mouse(const int button, const int state, const int x, const int y);
 static void motion(const int x, const int y);
 
-// error checking
-static void checkGlErrors();
-
 // main
 int main(int argc, char * argv[]) {
 	glutInit(&argc, argv);
@@ -46,7 +44,7 @@ int main(int argc, char * argv[]) {
 		throw std::runtime_error("failed to load extentions.");
 	initGLState();
 	g_demo = new DEMO;
-	checkGlErrors();
+	checkGLErrors();
 	glutMainLoop();
 	delete g_demo;
 	return 0;
@@ -101,15 +99,4 @@ static void motion(const int x, const int y) {
 	g_mouseClickX = x;
 	g_mouseClickY = g_windowHeight - y - 1;
 	g_demo->motion(g_mouseClickX, g_mouseClickY, dx, dy);
-}
-
-static void checkGlErrors() {
-	const GLenum errCode = glGetError();
-
-	if (errCode != GL_NO_ERROR) {
-		std::string error("GL Error: ");
-		error += reinterpret_cast<const char*>(gluErrorString(errCode));
-		std::cerr << error << std::endl;
-		throw std::runtime_error(error);
-	}
 }

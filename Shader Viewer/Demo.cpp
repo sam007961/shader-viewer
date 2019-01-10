@@ -20,14 +20,54 @@ RoomDemo::RoomDemo() : clicked(false) {
 	geom_plane.loadData(vertices);
 	geom_plane.loadIndices(indices);
 
+	// textures
+	// diffuse maps
+	tex_marble.loadData(GL_RGB, "./Textures/marble.png");
+	tex_tiles.loadData(GL_RGB, "./Textures/tiles.jpg");
+	tex_concrete.loadData(GL_RGB, "./Textures/concrete.png");
+	tex_mosaic.loadData(GL_RGB, "./Textures/mosaic.jpg");
+
+	// spculular maps
+	tex_marble_spec.loadData(GL_RGB, "./Textures/marble_SPEC.tga");
+	tex_tiles_spec.loadData(GL_RGB, "./Textures/tiles_SPEC.tga");
+	tex_concrete_spec.loadData(GL_RGB, "./Textures/concrete_SPEC.tga");
+	tex_mosaic_spec.loadData(GL_RGB, "./Textures/mosaic_SPEC.tga");
+
+	// normal maps
+	tex_marble_norm.loadData(GL_RGB, "./Textures/marble_NORM.png");
+	tex_tiles_norm.loadData(GL_RGB, "./Textures/tiles_NORM.png");
+	tex_concrete_norm.loadData(GL_RGB, "./Textures/concrete_NORM.png");
+	tex_mosaic_norm.loadData(GL_RGB, "./Textures/mosaic_NORM.png");
+
 	// materials
-	Material grey = { { 0.2f, 0.2f, 0.2f }, { 0.05f, 0.05f, 0.05f } };
-	Material purple = { { 0.5f, 0.0f, 0.5f }, { 0.05f, 0.05f, 0.05f } };
-	Material red = { { 1.0f, 0.1f, 0.1f }, { 0.05f, 0.05f, 0.05f } };
-	Material green = { { 0.1f, 1.0f, 0.1f }, { 0.05f, 0.05f, 0.05f } };
+	Material marble, tiles, concrete, mosaic;
+
+	marble.color = { 0.5f, 0.0f, 0.5f };
+	marble.ambient = { 0.05, 0.05, 0.05 };
+	marble.textures[0] = tex_marble;
+	marble.textures[1] = tex_marble_spec;
+	marble.textures[2] = tex_marble_norm;
+
+	tiles.color = { 1.0f, 0.1f, 0.1f };
+	tiles.ambient = { 0.05, 0.05, 0.05 };
+	tiles.textures[0] = tex_tiles;
+	tiles.textures[1] = tex_tiles_spec;
+	tiles.textures[2] = tex_tiles_norm;
+
+	concrete.color = { 0.2f, 0.2f, 0.2f };
+	concrete.ambient = { 0.05, 0.05, 0.05 };
+	concrete.textures[0] = tex_concrete;
+	concrete.textures[1] = tex_concrete_spec;
+	concrete.textures[2] = tex_concrete_norm;
+
+	mosaic.color = { 0.1f, 1.0f, 0.1f };
+	mosaic.ambient = { 0.05, 0.05, 0.05 };
+	mosaic.textures[0] = tex_mosaic;
+	mosaic.textures[1] = tex_mosaic_spec;
+	mosaic.textures[2] = tex_mosaic_norm;
 
 	// light
-	light = PointLight(-1.8f, 1.8f, 1.5f);
+	light = PointLight(-1.8f, 1.8f, 1.8f);
 
 	// drawables
 	sphere.setGeometry(&geom_sphere);
@@ -38,13 +78,13 @@ RoomDemo::RoomDemo() : clicked(false) {
 	left_wall.setGeometry(&geom_plane);
 	right_wall.setGeometry(&geom_plane);
 
-	sphere.setMaterial(purple);
-	floor.setMaterial(grey);
-	ceiling.setMaterial(grey);
-	back_wall.setMaterial(grey);
-	front_wall.setMaterial(grey);
-	left_wall.setMaterial(red);
-	right_wall.setMaterial(green);
+	sphere.setMaterial(marble);
+	floor.setMaterial(tiles);
+	ceiling.setMaterial(concrete);
+	back_wall.setMaterial(mosaic);
+	front_wall.setMaterial(mosaic);
+	left_wall.setMaterial(mosaic);
+	right_wall.setMaterial(mosaic);
 
 	sphere.setPosition({ 0, 0, 0 });
 	floor.setPosition({ 0, -2, 0 });
@@ -65,7 +105,7 @@ RoomDemo::RoomDemo() : clicked(false) {
 	camera.lookAt(glm::vec3(0, 0, 0));
 }
 
-RoomDemo::~RoomDemo() { delete shader; }
+//RoomDemo::~RoomDemo() { delete shader; }
 
 void RoomDemo::clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 
@@ -79,6 +119,7 @@ void RoomDemo::draw(const DObject& obj) {
 	glm::mat4 viewMatrix = camera.makeViewMatrix(); // view
 	glm::mat4 modelViewMatrix = viewMatrix * obj.makeModelMatrix(); // model view
 	shader->setLight(light, viewMatrix);
+	shader->setLightColor(glm::vec3(1, 1, 1));
 	shader->setModelView(modelViewMatrix);
 	shader->loadMaterial(obj.material());
 	renderer.draw(*obj.geometry()); // render
@@ -122,66 +163,14 @@ void RoomDemo::motion(const int x, const int y, const int dx, const int dy) {
 // Solid Phong shader demo
 PhongSolidDemo::PhongSolidDemo() : RoomDemo() {
 	// shader
-	shader = new PhongSolid();
-	shader->setLightColor(glm::vec3(1, 1, 1));
+	shader.reset(new PhongSolid());
 }
 
 
 // Texuture Phong shader demo
 PhongTextureDemo::PhongTextureDemo() : RoomDemo() {
 	// shader
-	shader = new PhongTexture();
-	shader->setLightColor(glm::vec3(1, 1, 1));
-	
-	// textures
-	// diffuse maps
-	tex_marble.loadData(GL_RGB, "./Textures/marble.png");
-	tex_tiles.loadData(GL_RGB, "./Textures/tiles.jpg");
-	tex_concrete.loadData(GL_RGB, "./Textures/concrete.png");
-	tex_mosaic.loadData(GL_RGB, "./Textures/mosaic.jpg");
-	
-	// spculular maps
-	tex_marble_spec.loadData(GL_RGB, "./Textures/marble_SPEC.tga");
-	tex_tiles_spec.loadData(GL_RGB, "./Textures/tiles_SPEC.tga");
-	tex_concrete_spec.loadData(GL_RGB, "./Textures/concrete_SPEC.tga");
-	tex_mosaic_spec.loadData(GL_RGB, "./Textures/mosaic_SPEC.tga");
-
-	// normal maps
-	tex_marble_norm.loadData(GL_RGB, "./Textures/marble_NORM.png");
-	tex_tiles_norm.loadData(GL_RGB, "./Textures/tiles_NORM.png");
-	tex_concrete_norm.loadData(GL_RGB, "./Textures/concrete_NORM.png");
-	tex_mosaic_norm.loadData(GL_RGB, "./Textures/mosaic_NORM.png");
-
-	// materials
-	Material marble, tiles, concrete, mosaic;
-
-	marble.ambient = { 0.05, 0.05, 0.05 };
-	marble.textures[0] = tex_marble;
-	marble.textures[1] = tex_marble_spec;
-	marble.textures[2] = tex_marble_norm;
-
-	tiles.ambient = { 0.05, 0.05, 0.05 };
-	tiles.textures[0] = tex_tiles;
-	tiles.textures[1] = tex_tiles_spec;
-	tiles.textures[2] = tex_tiles_norm;
-
-	concrete.ambient = { 0.05, 0.05, 0.05 };
-	concrete.textures[0] = tex_concrete;
-	concrete.textures[1] = tex_concrete_spec;
-	concrete.textures[2] = tex_concrete_norm;
-
-	mosaic.ambient = { 0.05, 0.05, 0.05 };
-	mosaic.textures[0] = tex_mosaic;
-	mosaic.textures[1] = tex_mosaic_spec;
-	mosaic.textures[2] = tex_mosaic_norm;
-
-	sphere.setMaterial(marble);
-	floor.setMaterial(tiles);
-	ceiling.setMaterial(concrete);
-	back_wall.setMaterial(mosaic);
-	front_wall.setMaterial(mosaic);
-	left_wall.setMaterial(mosaic);
-	right_wall.setMaterial(mosaic);
+	shader.reset(new PhongTexture());
 }
 
 // depth shader
@@ -232,17 +221,14 @@ void DepthShaderDemo::draw() {
 }
 
 PhongTextureShadowDemo::PhongTextureShadowDemo() : PhongTextureDemo() {
-	// change shader
-	delete shader;
-	shader = new PhongTextureShadow;
-	shader->setLightColor(glm::vec3(1, 1, 1));
-	light.lookAt(0, 0, 0);
+	// shader
+	shader.reset(new PhongTextureShadow);
+	light.lookAt(0, 0, 0); // orient light for shadow map
 
 	// attach shadow map to depth buffer
 	depthMap.attachDepthBuffer(depthBuffer, 1024, 1024);
-	PhongTextureShadow* sshader = dynamic_cast<PhongTextureShadow*>(shader);
+	PhongTextureShadow* sshader = dynamic_cast<PhongTextureShadow*>(shader.get());
 	sshader->setShadowMap(depthMap);
-	//depthMap.loadData(GL_RGB, "./Textures/marble_SPEC.tga");
 }
 
 void PhongTextureShadowDemo::drawShadow(const DObject& obj) {
@@ -254,10 +240,7 @@ void PhongTextureShadowDemo::drawShadow(const DObject& obj) {
 }
 
 void PhongTextureShadowDemo::drawShadows() {
-	glBindFramebuffer(GL_FRAMEBUFFER, depthBuffer);
 	glViewport(0, 0, 1024, 1024);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 	drawShadow(sphere);
 	drawShadow(floor);
 	drawShadow(ceiling);
@@ -269,7 +252,7 @@ void PhongTextureShadowDemo::drawShadows() {
 }
 
 void PhongTextureShadowDemo::draw(const DObject& obj) {
-	PhongTextureShadow* sshader = dynamic_cast<PhongTextureShadow*>(shader);
+	PhongTextureShadow* sshader = dynamic_cast<PhongTextureShadow*>(shader.get());
 	sshader->setModelLightSpaceMatrix(light.makeLightSpaceMatrix() * obj.makeModelMatrix());
 	PhongTextureDemo::draw(obj);
 }
@@ -279,7 +262,6 @@ void PhongTextureShadowDemo::draw() {
 	depthBuffer.clear();
 	setProjection(); // lighting shader projection
 	depthShader.setProjection(light.makeProjMatrix()); // depth shader projection
-	//depthShader.setProjection(glm::ortho(-6.0f, 6.0f, -6.0f, 6.0f, 0.01f, 100.0f));
 	drawShadows();
 	drawEverything();	
 }

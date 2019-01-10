@@ -19,15 +19,22 @@ class RoomDemo : public Demo {
 protected:
 	typedef Geometry<InterleavedLayout<VertexPNTtb> > Geometry;
 	typedef DrawableObject<Geometry> DObject;
+	typedef GLTexture2D Texture;
 
 	int width, height;
 	Geometry geom_sphere, geom_plane;
 	Camera camera;
 	DObject sphere, floor, ceiling, back_wall, front_wall, left_wall, right_wall;
+
+	Texture tex_marble, tex_tiles, tex_concrete, tex_mosaic; // diffuse maps
+	Texture tex_marble_spec, tex_tiles_spec, tex_concrete_spec, tex_mosaic_spec; // specular maps
+	Texture tex_marble_norm, tex_tiles_norm, tex_concrete_norm, tex_mosaic_norm; // normal maps;
+
 	PointLight light;
 
 	Renderer renderer;
-	LightingShader* shader;
+	std::shared_ptr<LightingShader> shader;
+	//CameraShader* shader;
 
 	bool clicked;
 
@@ -39,7 +46,7 @@ protected:
 	
 public:
 	RoomDemo();
-	virtual ~RoomDemo();
+	//virtual ~RoomDemo();
 	virtual void draw();
 	virtual void reshape(const int w, const int h);
 	virtual void mouse(const int button, const int state, const int x, const int y);
@@ -52,13 +59,6 @@ public:
 };
 
 class PhongTextureDemo : public RoomDemo {
-protected:
-	typedef GLTexture2D Texture;
-
-	Texture tex_marble, tex_tiles, tex_concrete, tex_mosaic; // diffuse maps
-	Texture tex_marble_spec, tex_tiles_spec, tex_concrete_spec, tex_mosaic_spec; // specular maps
-	Texture tex_marble_norm, tex_tiles_norm, tex_concrete_norm, tex_mosaic_norm; // normal maps;
-
 public:
 	PhongTextureDemo();
 };

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <GL\glew.h>
 #include <glm/common.hpp>
+#include <memory>
 
 #include "VertexLayout.h"
 #include "GLObject.h"
@@ -18,15 +19,19 @@ public:
 	virtual ~GLShader();
 
 	// shader factory
-	static GLShader* VertexShader();
-	static GLShader* FragmentShader();
+	static std::shared_ptr<GLShader> VertexShader();
+	static std::shared_ptr<GLShader> FragmentShader();
 };
+typedef std::shared_ptr<GLShader> Shader;
 
 // base program class
 class GLProgram : public GLObject {
 protected:
+	GLProgram();
+	GLProgram(std::ifstream&, std::ifstream&);
 	// helpers for constructing shader
-	void link(const GLShader& vshader, const GLShader& fshader);
+	void link(Shader vshader, Shader fshader);
+	void compileAndLink(std::ifstream& vshader, std::ifstream& fshader);
 	GLuint getUniformLocation(const char* unif);
 
 	// helpers for setting uniforms
@@ -34,35 +39,45 @@ protected:
 	void setUniform(GLuint unif, T m);
 
 public:
-	GLProgram();
 	virtual ~GLProgram();
 };
 
+// camera shader class
 class CameraShader : public GLProgram {
 private:
 	// Camera
 	GLuint uModelViewMatrix, uProjectionMatrix;
 
+protected:
+	CameraShader(std::ifstream& vshader, std::ifstream& fshader);
+
 public:
-	CameraShader(const char* vert_file, const char* frag_file);
 	void setModelView(glm::mat4 m); // set modelViewMatrix
 	void setProjection(glm::mat4 m); // set projectionMatrix
 };
 
+// depth shader class
 class DepthShader : public CameraShader {
 public:
 	DepthShader();
 };
 
-class TextureShader : public CameraShader {
+// texture shader class
+class TextureShader : virtual public CameraShader {
 private:
+	// Texture
 	GLuint uTexture;
+
+protected:
+	TextureShader(std::ifstream& vshader, std::ifstream& fshader);
+
 public:
 	TextureShader();
 	void setTexture(GLuint texture);
 };
 
-class LightingShader : public CameraShader {
+// lighting shader class
+class LightingShader : public virtual CameraShader {
 private:
 	// Ambient Light | Light Direction | Light Color
 	GLuint uAmbient, uLight, uLightColor;
@@ -70,16 +85,19 @@ private:
 	// normal transformation matrix
 	GLuint uNormalMatrix;
 
+protected:
+	LightingShader(std::ifstream& vshader, std::ifstream& fshader);
+
 public:
-	LightingShader(const char* frag_file);
 	void setAmbient(const glm::vec3& ambient); // set ambient light
-	void setLight(const glm::vec3& light, glm::mat4 view=glm::mat4(1)); // set light position
+	void setLight(const glm::vec3& light, glm::mat4 viewMatrix=glm::mat4(1)); // set light position/direction
 	void setLightColor(const glm::vec3& lightColor); // set light color
 	void setModelView(glm::mat4 m); // set modelViewMatrix and automatically set normalMatrix
 
 	virtual void loadMaterial(const Material& material); // load uniforms from material
 };
 
+// solid color phong shader
 class PhongSolid : public LightingShader {
 private:
 	// Color
@@ -91,20 +109,25 @@ public:
 	virtual void loadMaterial(const Material& material);
 };
 
-class PhongTexture : public LightingShader {
+// texture phong shader
+class PhongTexture : public TextureShader, public LightingShader {
 private:
-	GLuint uTexture;
+	//GLuint uTexture;
 	GLuint uSpecularMap;
 	GLuint uNormalMap;
 
+protected:
+	PhongTexture(std::ifstream& vshader, std::ifstream& fshader);
+
 public:
-	PhongTexture(const char*  frag_file="./Shaders/phong_texture.fshader");
-	void setTexture(GLuint texture);
+	PhongTexture();
 	void setSpecularMap(GLuint texture);
 	void setNormalMap(GLuint texture);
 	virtual void loadMaterial(const Material& material);
 };
 
+
+// texture phong shader with shadow
 class PhongTextureShadow : public PhongTexture {
 private:
 	GLuint uShadowMap;

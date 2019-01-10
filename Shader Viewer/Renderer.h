@@ -11,18 +11,20 @@ private:
 	unsigned int n_elements;
 
 public:
-	Renderer() : program(nullptr) {}
+	Renderer() {}
 
 	void setProgram(GLProgram* program) { // set program
-		assert(program != nullptr);
 		assert((*program) > 0);
-
 		this->program = program;
+	}
+
+	void setProgram(std::shared_ptr<GLProgram> program) { // set program
+		assert((*program) > 0);
+		this->program = program.get();
 	}
 
 	template<class GeometryType>
 	void draw(const GeometryType& target, GLenum mode=GL_TRIANGLES) const { // draw geometry
-		assert(program != nullptr);
 		assert((*program) > 0);
 
 		glUseProgram(*program);
@@ -33,7 +35,7 @@ public:
 	}
 
 	template<class GeometryType>
-	void draw(const GeometryType& target, const GLFramebuffer& fbo, GLenum mode = GL_TRIANGLES) const { // draw geometry to texture
+	void draw(const GeometryType& target, const GLFramebuffer& fbo, GLenum mode=GL_TRIANGLES) const { // draw geometry to specific fbo
 		assert(program != nullptr);
 		assert((*program) > 0);
 

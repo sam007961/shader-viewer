@@ -2,9 +2,9 @@
 
 in vec2 vTexCoord;
 
-out vec4 fragColor;
-
 uniform sampler2D uTexture;
+
+out vec4 fragColor;
 
 void main() {
 

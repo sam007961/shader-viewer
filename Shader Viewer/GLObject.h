@@ -1,6 +1,5 @@
 #pragma once
 #include <GL\glew.h>
-
 class GLObject {
 protected:
 	GLuint handle; // object handle

@@ -14,24 +14,19 @@ uniform sampler2D uShadowMap;
 uniform vec3 uAmbient;
 uniform vec3 uLight;
 uniform vec3 uLightColor;   
-uniform float shadowBias = 0.01;
+uniform float shadowBias = 0.005;
 
 float getShadow(vec4 posLightSpace){
-    vec3 projCoords = posLightSpace.xyz / posLightSpace.w;
-    projCoords = projCoords * 0.5 + 0.5;
-    float closestDepth = texture(uShadowMap, projCoords.xy).r;
-    float currentDepth = projCoords.z;
-    return currentDepth - shadowBias > closestDepth ? 1.0 : 0.0;
+    vec3 projCoords = posLightSpace.xyz / posLightSpace.w; // NDC
+    projCoords = projCoords * 0.5 + 0.5; // [-1, 1] -> [0, 1]
+    float closestDepth = texture(uShadowMap, projCoords.xy).r; // shadow map
+    float fragDepth = projCoords.z; // fragment depth
+    return fragDepth > closestDepth + shadowBias  ? 1.0 : 0.0;
 }
 
 void main() {
     // shadow
     float shadow = getShadow(vPosLightSpace);
-
-    //vec3 projCoords = vPosLightSpace.xyz / vPosLightSpace.w;
-    //projCoords = projCoords * 0.5 + 0.5;
-    //float closestDepth = texture(uShadowMap, projCoords.xy).r;
-    //float currentDepth = projCoords.z;
 
     // normal
     vec3 normal = texture(uNormalMap, vTexCoord).rgb;
