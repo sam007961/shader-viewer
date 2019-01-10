@@ -1,10 +1,8 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 
-#include "Demo.h"
-
-// Demo base class
-Demo::Demo() {}
+#include "Demos.h"
+#include "Shaders.h"
 
 // Room demo class
 RoomDemo::RoomDemo() : clicked(false) {
@@ -104,8 +102,6 @@ RoomDemo::RoomDemo() : clicked(false) {
 	camera.setPosition(glm::vec3(0, 0, 4));
 	camera.lookAt(glm::vec3(0, 0, 0));
 }
-
-//RoomDemo::~RoomDemo() { delete shader; }
 
 void RoomDemo::clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 

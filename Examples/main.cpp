@@ -5,15 +5,11 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <GLError.h>
 
 using glm::vec3;
 
-#include "Geometry.h"
-#include "Shader.h"
-#include "Renderer.h"
-#include "Camera.h"
-#include "Demo.h"
-#include "GLError.h"
+#include "Demos.h"
 
 // globals
 #define DEMO PhongTextureShadowDemo
